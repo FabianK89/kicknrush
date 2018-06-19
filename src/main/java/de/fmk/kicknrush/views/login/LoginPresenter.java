@@ -4,6 +4,8 @@ import de.fmk.kicknrush.helper.ApplicationHelper;
 import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.models.login.LoginModel;
 import de.fmk.kicknrush.views.dashboard.DashboardView;
+import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.PasswordField;
@@ -87,7 +89,7 @@ public class LoginPresenter implements Initializable {
 
 	@FXML
 	private void onQuit() {
-		System.exit(0);
+		Platform.exit();
 	}
 
 

@@ -1,5 +1,6 @@
 package de.fmk.kicknrush.app;
 
+import de.fmk.kicknrush.db.DBManager;
 import de.fmk.kicknrush.helper.ApplicationHelper;
 import de.fmk.kicknrush.views.login.LoginView;
 import javafx.application.Application;
@@ -27,6 +28,17 @@ public class App extends Application {
 	@Override
 	public void init() throws Exception {
 		super.init();
+
+		DBManager.getInstance().connect();
+	}
+
+
+	@Override
+	public void stop() throws Exception
+	{
+		DBManager.getInstance().closeConnection();
+
+		super.stop();
 	}
 
 
