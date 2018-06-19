@@ -1,0 +1,21 @@
+apply plugin: 'java'
+apply plugin: 'application'
+
+version = '0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.airhacks:afterburner.fx:1.7.0'
+    compile 'org.controlsfx:controlsfx:8.40.14'
+    testCompile 'junit:junit:4.12'
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Kick n Rush',
+                   'Implementation-Version': version
+    }
+}
