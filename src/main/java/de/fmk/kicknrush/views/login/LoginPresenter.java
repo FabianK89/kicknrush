@@ -4,7 +4,6 @@ import de.fmk.kicknrush.helper.ApplicationHelper;
 import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.models.login.LoginModel;
 import de.fmk.kicknrush.views.dashboard.DashboardView;
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -32,6 +31,8 @@ public class LoginPresenter implements Initializable {
 	private TextFlow      textFlow;
 
 	@Inject
+	private ApplicationHelper appHelper;
+	@Inject
 	private LoginModel model;
 
 	private ResourceBundle bundle;
@@ -55,7 +56,7 @@ public class LoginPresenter implements Initializable {
 				showMessage(bundle.getString("msg.login.failed"));
 			}
 			else if (Status.SUCCESS == newStatus) {
-				ApplicationHelper.getInstance().changeView(new DashboardView().getView(), true);
+				appHelper.changeView(new DashboardView().getView(), true);
 			}
 		});
 	}

@@ -1,7 +1,6 @@
 package de.fmk.kicknrush.app;
 
-import de.fmk.kicknrush.db.DBManager;
-import de.fmk.kicknrush.helper.ApplicationHelper;
+import de.fmk.kicknrush.db.DatabaseHandler;
 import de.fmk.kicknrush.views.login.LoginView;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -9,14 +8,16 @@ import javafx.stage.Stage;
 
 
 public class App extends Application {
+	private static Stage stage;
+
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		final LoginView login;
 
-		login = new LoginView();
+		setPrimaryStage(primaryStage);
 
-		ApplicationHelper.getInstance().setPrimaryStage(primaryStage);
+		login = new LoginView();
 
 		primaryStage.setTitle("Kick'n'Rush");
 		primaryStage.setScene(new Scene(login.getView()));
@@ -27,22 +28,33 @@ public class App extends Application {
 
 	@Override
 	public void init() throws Exception {
+		final DatabaseHandler dbHandler;
+
 		super.init();
 
-		DBManager.getInstance().connect();
+		dbHandler = new DatabaseHandler();
+		dbHandler.createInitialTables();
 	}
 
 
 	@Override
 	public void stop() throws Exception
 	{
-		DBManager.getInstance().closeConnection();
-
 		super.stop();
 	}
 
 
 	public static void main(String[] args) {
 		launch(args);
+	}
+
+
+	public static Stage getPrimaryStage() {
+		return stage;
+	}
+
+
+	public synchronized static void setPrimaryStage(Stage primaryStage) {
+		stage = primaryStage;
 	}
 }
