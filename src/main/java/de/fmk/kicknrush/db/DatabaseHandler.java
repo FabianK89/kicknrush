@@ -1,5 +1,8 @@
 package de.fmk.kicknrush.db;
 
+import de.fmk.kicknrush.helper.CacheProvider;
+import de.fmk.kicknrush.helper.SettingCacheKey;
+import de.fmk.kicknrush.models.pojo.User;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.h2.Driver;
 import org.slf4j.Logger;
@@ -10,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 import java.util.UUID;
 
 
@@ -36,6 +40,7 @@ public class DatabaseHandler {
 		try (Connection connection = connectionPool.getConnection()) {
 			createUserTable(connection);
 			createAdminAccount(connection);
+			createSettingsTable(connection);
 		}
 		catch (SQLException sqlex) {
 			LOGGER.error("An error occurred while connecting to the database.", sqlex);
@@ -43,11 +48,38 @@ public class DatabaseHandler {
 	}
 
 
-	public boolean loginUser(final String username, final String password) throws SQLException {
+	public void saveSettings(final Map<SettingCacheKey, String> cachedSettings) throws SQLException {
+		final StringBuilder queryBuilder;
+
+		if (cachedSettings == null || cachedSettings.isEmpty())
+			return;
+
+		queryBuilder = new StringBuilder();
+		queryBuilder.append("MERGE INTO ").append(DBConstants.TBL_NAME_SETTINGS)
+		            .append(" KEY(").append(DBConstants.COL_NAME_KEY).append(") VALUES(?,?);");
+
+		try (Connection connection = connectionPool.getConnection()) {
+			cachedSettings.forEach((key, value) -> {
+				try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString())) {
+					statement.setString(1, key.getKey());
+					statement.setString(2, value);
+
+					if (1 != statement.executeUpdate())
+						LOGGER.warn("The setting '{}' could not have been saved.", key.getKey());
+				}
+				catch (SQLException sqlex) {
+					LOGGER.error("An error occurred while saving the setting '{}'.", key.getKey(), sqlex);
+				}
+			});
+		}
+	}
+
+
+	public User loginUser(final String username, final String password) throws SQLException {
 		final StringBuilder queryBuilder;
 
 		if (username == null || username.isEmpty() || password == null || password.isEmpty())
-			return false;
+			return null;
 
 		try (Connection connection = connectionPool.getConnection())
 		{
@@ -63,10 +95,28 @@ public class DatabaseHandler {
 
 				try (ResultSet result = statement.executeQuery())
 				{
-					return result.next();
+					if (result.next()) {
+						final Object id;
+						final User   user;
+
+						user = new User();
+						id   = result.getObject(DBConstants.COL_NAME_ID);
+
+						if (id instanceof UUID)
+							user.setId(((UUID) id).toString());
+						else
+							return null;
+
+						user.setUsername(result.getString(DBConstants.COL_NAME_USERNAME));
+						user.setPassword(result.getString(DBConstants.COL_NAME_PWD));
+
+						return user;
+					}
 				}
 			}
 		}
+
+		return null;
 	}
 
 
@@ -103,6 +153,36 @@ public class DatabaseHandler {
 	}
 
 
+	public void loadSettings(final CacheProvider cacheProvider) throws SQLException {
+		final StringBuilder queryBuilder;
+
+		try (Connection connection = connectionPool.getConnection())
+		{
+			queryBuilder = new StringBuilder();
+			queryBuilder.append("SELECT * FROM ").append(DBConstants.TBL_NAME_SETTINGS).append(";");
+
+			try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString()))
+			{
+				try (ResultSet result = statement.executeQuery())
+				{
+					while (result.next())
+					{
+						final SettingCacheKey key;
+
+						key = SettingCacheKey.getByKey(result.getString(DBConstants.COL_NAME_KEY));
+
+						cacheProvider.putSetting(key, result.getString(DBConstants.COL_NAME_VALUE));
+					}
+				}
+			}
+			catch (SQLException sqlex)
+			{
+				LOGGER.error("An error occurred while reading the settings from the database.", sqlex);
+			}
+		}
+	}
+
+
 	private void createUserTable(final Connection connection) throws SQLException {
 		final StringBuilder queryBuilder;
 
@@ -121,7 +201,29 @@ public class DatabaseHandler {
 			statement.executeUpdate(queryBuilder.toString());
 		}
 		catch (SQLException sqlex) {
-			LOGGER.error("An error occurred while executing the update statement.", sqlex);
+			LOGGER.error("An error occurred while creating the user table.", sqlex);
+		}
+	}
+
+
+	private void createSettingsTable(final Connection connection) throws SQLException {
+		final StringBuilder queryBuilder;
+
+		if (connection == null || connection.isClosed())
+			throw new IllegalStateException(NO_CONNECTION);
+
+		queryBuilder = new StringBuilder();
+
+		try (Statement statement = connection.createStatement()) {
+			queryBuilder.append("CREATE TABLE IF NOT EXISTS ")
+			            .append(DBConstants.TBL_NAME_SETTINGS)
+			            .append("(").append(DBConstants.COL_NAME_KEY).append(" VARCHAR(255) PRIMARY KEY, ")
+			            .append(DBConstants.COL_NAME_VALUE).append(" VARCHAR(255));");
+
+			statement.executeUpdate(queryBuilder.toString());
+		}
+		catch (SQLException sqlex) {
+			LOGGER.error("An error occurred while creating the settings table.", sqlex);
 		}
 	}
 

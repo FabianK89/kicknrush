@@ -1,13 +1,17 @@
 package de.fmk.kicknrush.models.login;
 
 import de.fmk.kicknrush.db.DatabaseHandler;
+import de.fmk.kicknrush.helper.CacheProvider;
+import de.fmk.kicknrush.helper.UserCacheKey;
 import de.fmk.kicknrush.models.Status;
+import de.fmk.kicknrush.models.pojo.User;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.embed.swing.JFXPanel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -24,6 +28,8 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 
@@ -31,6 +37,11 @@ import static org.mockito.Mockito.when;
 public class LoginModelTestCase {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LoginModelTestCase.class);
 
+	private static final String ADMIN = "Admin";
+	private static final String PWD   = "pwd";
+
+	@Mock
+	private CacheProvider   m_cacheProvider;
 	@Mock
 	private DatabaseHandler dbHandler;
 
@@ -69,7 +80,10 @@ public class LoginModelTestCase {
 
 	@Test
 	public void testLogin() throws Exception {
+		final ArgumentCaptor<String> valueCapture;
 		final ObjectProperty<Status> statusProperty;
+
+		valueCapture = ArgumentCaptor.forClass(String.class);
 
 		initializeJavaFX();
 
@@ -81,8 +95,10 @@ public class LoginModelTestCase {
 		assertNotNull(dbHandler);
 
 		when(dbHandler.loginUser(null, null)).thenThrow(new SQLException());
-		when(dbHandler.loginUser("Test", "abc")).thenReturn(false);
-		when(dbHandler.loginUser("Admin", "admin")).thenReturn(true);
+		when(dbHandler.loginUser("Test", "abc")).thenReturn(null);
+		when(dbHandler.loginUser(ADMIN, PWD)).thenReturn(new User("uuid", ADMIN, PWD));
+
+		doNothing().when(m_cacheProvider).putUserValue(isA(UserCacheKey.class), valueCapture.capture());
 
 		loginModel.login(null, null);
 
@@ -93,15 +109,17 @@ public class LoginModelTestCase {
 
 		await().atMost(2, TimeUnit.SECONDS).until(() -> Status.RUNNING != statusProperty.get());
 		assertEquals(Status.FAILED, loginModel.statusProperty().get());
+		assertNull(m_cacheProvider.getUserValue(UserCacheKey.USERNAME));
 
-		loginModel.login("Admin", "admin");
+		loginModel.login(ADMIN, PWD);
 
 		await().atMost(2, TimeUnit.SECONDS).until(() -> Status.RUNNING != statusProperty.get());
 		assertEquals(Status.SUCCESS, loginModel.statusProperty().get());
+		assertEquals(PWD, valueCapture.getValue());
 	}
 
 
-	protected void initializeJavaFX() {
+	private void initializeJavaFX() {
 		final CountDownLatch latch;
 
 		latch = new CountDownLatch(1);

@@ -45,6 +45,8 @@ public class LoginPresenter implements Initializable {
 
 		initLoadingPane();
 
+		model.loadSettings();
+
 		model.statusProperty().addListener((observable, oldStatus, newStatus) -> {
 			if (Status.RUNNING == newStatus) {
 				grid.add(loadingPane, 0, 0, 1, Integer.MAX_VALUE);
