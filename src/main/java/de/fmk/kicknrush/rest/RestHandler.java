@@ -11,11 +11,13 @@ import java.util.Map;
 
 
 public class RestHandler {
+	private String       baseUrl;
 	private RestTemplate restTemplate;
 
 
 	@PostConstruct
 	public void init() {
+		baseUrl      = "http://localhost:8080";
 		restTemplate = new RestTemplate();
 	}
 
@@ -30,7 +32,7 @@ public class RestHandler {
 		uriVariables.put("password", password);
 
 		try {
-			response = restTemplate.getForEntity("http://localhost:8080/login?username={username}&password={password}",
+			response = restTemplate.getForEntity(baseUrl.concat("/login?username={username}&password={password}"),
 			                                     User.class,
 			                                     uriVariables);
 
