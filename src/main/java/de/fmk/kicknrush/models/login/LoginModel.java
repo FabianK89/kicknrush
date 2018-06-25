@@ -6,6 +6,7 @@ import de.fmk.kicknrush.helper.CacheProvider;
 import de.fmk.kicknrush.helper.UserCacheKey;
 import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.models.pojo.User;
+import de.fmk.kicknrush.rest.RestHandler;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -33,6 +34,8 @@ public class LoginModel {
 	private CacheProvider     cacheProvider;
 	@Inject
 	private DatabaseHandler   dbHandler;
+	@Inject
+	private RestHandler       restHandler;
 
 	private ObjectProperty<Status> status;
 
@@ -88,12 +91,14 @@ public class LoginModel {
 		loginThread = new Thread(() -> {
 			User user = null;
 
-			try {
-				user = dbHandler.loginUser(username, password);
-			}
-			catch (SQLException sqlex) {
-				LOGGER.error("An error occurred while checking login data of user '{}'.", username, sqlex);
-			}
+//			try {
+//				user = dbHandler.loginUser(username, password);
+//			}
+//			catch (SQLException sqlex) {
+//				LOGGER.error("An error occurred while checking login data of user '{}'.", username, sqlex);
+//			}
+
+			user = restHandler.loginUser(username, password);
 
 			if (user != null) {
 				cacheProvider.putUserValue(UserCacheKey.USER_ID, user.getId());
