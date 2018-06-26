@@ -17,7 +17,7 @@ public class RestHandler {
 
 	@PostConstruct
 	public void init() {
-		baseUrl      = "http://localhost:8080";
+		baseUrl      = "http://localhost:8080/api";
 		restTemplate = new RestTemplate();
 	}
 
@@ -32,7 +32,7 @@ public class RestHandler {
 		uriVariables.put("password", password);
 
 		try {
-			response = restTemplate.getForEntity(baseUrl.concat("/login?username={username}&password={password}"),
+			response = restTemplate.getForEntity(baseUrl.concat("/user/login?username={username}&password={password}"),
 			                                     User.class,
 			                                     uriVariables);
 
