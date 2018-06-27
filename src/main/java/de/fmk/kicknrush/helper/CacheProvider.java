@@ -45,7 +45,7 @@ public class CacheProvider {
 
 	/**
 	 * @param key The key of a cached setting.
-	 * @param fallback Fallback value if no value could be found tor the given key.
+	 * @param fallback Fallback value if no value could be found for the given key.
 	 * @return the cached boolean value or the fallback value.
 	 */
 	public boolean getBooleanSetting(SettingCacheKey key, boolean fallback) {
@@ -55,6 +55,23 @@ public class CacheProvider {
 			return fallback;
 
 		value = cachedSettings.get(key);
+
+		return Boolean.parseBoolean(value);
+	}
+
+
+	/**
+	 * @param key The key of a cached user value.
+	 * @param fallback Fallback value if no value could be found for the given key.
+	 * @return the cached boolean value or the fallback value.
+	 */
+	public boolean getBooleanUserValue(UserCacheKey key, boolean fallback) {
+		final String value;
+
+		if (key == null || key.getValueClass() != Boolean.class || cachedSettings == null || cachedSettings.get(key) == null)
+			return fallback;
+
+		value = cachedUserValues.get(key);
 
 		return Boolean.parseBoolean(value);
 	}

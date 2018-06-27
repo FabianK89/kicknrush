@@ -104,13 +104,17 @@ public class CacheProviderTest
 
 
 	@Test
-	public void testPutAndGetUserValue() {
+	public void testPutAndGetUserValue()
+	{
 		assertNull(cacheProvider.getUserValue(UserCacheKey.USERNAME));
 
 		cacheProvider.putUserValue(UserCacheKey.USERNAME, VALUE);
+		cacheProvider.putUserValue(UserCacheKey.IS_ADMIN, Boolean.TRUE.toString());
 
 		assertNull(cacheProvider.getUserValue(UserCacheKey.PASSWORD));
 		assertEquals(VALUE, cacheProvider.getUserValue(UserCacheKey.USERNAME));
+		assertFalse(cacheProvider.getBooleanUserValue(null, false));
+		assertTrue(cacheProvider.getBooleanUserValue(UserCacheKey.IS_ADMIN, false));
 	}
 
 

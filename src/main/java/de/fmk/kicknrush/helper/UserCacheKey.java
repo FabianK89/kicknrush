@@ -1,17 +1,26 @@
 package de.fmk.kicknrush.helper;
 
 public enum UserCacheKey {
-	IS_ADMIN("is.admin"),
-	PASSWORD("password"),
-	USER_ID("user_id"),
-	USERNAME("username");
+	CHANGE_PWD("change.password", Boolean.class),
+	IS_ADMIN("is.admin", Boolean.class),
+	PASSWORD("password", String.class),
+	SALT("salt", String.class),
+	USER_ID("user_id", String.class),
+	USERNAME("username", String.class);
 
 
-	private String key;
+	private Class<?> valueClass;
+	private String   key;
 
 
-	UserCacheKey(String key) {
-		this.key = key;
+	UserCacheKey(String key, Class<?> valueClass) {
+		this.key        = key;
+		this.valueClass = valueClass;
+	}
+
+
+	public Class<?> getValueClass() {
+		return valueClass;
 	}
 
 
