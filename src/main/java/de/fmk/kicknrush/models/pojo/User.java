@@ -17,6 +17,9 @@ import lombok.ToString;
 public class User {
 	private String id;
 
-	private String username;
-	private String password;
+	private boolean isAdmin;
+	private String  password;
+	private String  salt;
+	private String  username;
+	private String  sessionID;
 }

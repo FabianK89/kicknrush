@@ -7,6 +7,7 @@ import de.fmk.kicknrush.helper.UserCacheKey;
 import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.models.pojo.User;
 import de.fmk.kicknrush.rest.RestHandler;
+import de.fmk.kicknrush.security.PasswordUtils;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -89,21 +90,40 @@ public class LoginModel {
 		status.set(Status.RUNNING);
 
 		loginThread = new Thread(() -> {
-			User user = null;
+			final String securePassword;
+			final User   user;
 
-//			try {
-//				user = dbHandler.loginUser(username, password);
-//			}
-//			catch (SQLException sqlex) {
-//				LOGGER.error("An error occurred while checking login data of user '{}'.", username, sqlex);
-//			}
+			String salt;
 
-			user = restHandler.loginUser(username, password);
+			try {
+				salt = dbHandler.readSalt(username);
+
+				if (salt == null)
+					securePassword = password;
+				else
+					securePassword = PasswordUtils.generateSecurePassword(password, salt);
+			}
+			catch (SQLException sqlex) {
+				LOGGER.error("Could not connect to internal data base.", sqlex);
+				Platform.runLater(() -> status.set(Status.FAILED));
+				return;
+			}
+
+			user = restHandler.loginUser(username, securePassword);
 
 			if (user != null) {
+				if (salt == null) {
+					try {
+						dbHandler.updateUser(user);
+					}
+					catch (SQLException sqlex) {
+						LOGGER.error("Could not connect to internal data base.", sqlex);
+					}
+				}
+
 				cacheProvider.putUserValue(UserCacheKey.USER_ID, user.getId());
 				cacheProvider.putUserValue(UserCacheKey.USERNAME, user.getUsername());
-				cacheProvider.putUserValue(UserCacheKey.IS_ADMIN, Boolean.valueOf("admin".equals(user.getUsername())).toString());
+				cacheProvider.putUserValue(UserCacheKey.IS_ADMIN, Boolean.valueOf(user.isAdmin()).toString());
 				cacheProvider.putUserValue(UserCacheKey.PASSWORD, user.getPassword());
 				Platform.runLater(() -> status.set(Status.SUCCESS));
 			}
