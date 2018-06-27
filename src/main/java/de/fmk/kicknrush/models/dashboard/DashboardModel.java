@@ -20,11 +20,6 @@ public class DashboardModel {
 	private DatabaseHandler dbHandler;
 
 
-	public boolean hasDefaultPassword() {
-		return "admin123".equals(cacheProvider.getUserValue(UserCacheKey.PASSWORD));
-	}
-
-
 	public void logout() {
 		cacheProvider.clearUserCache();
 

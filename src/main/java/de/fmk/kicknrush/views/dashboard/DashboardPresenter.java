@@ -49,7 +49,7 @@ public class DashboardPresenter implements Initializable {
 
 		settingsTab.setContent(new SettingsView().getView());
 
-		if (model.hasDefaultPassword())
+		if (cacheProvider.getBooleanUserValue(UserCacheKey.CHANGE_PWD, false))
 			tabPane.getSelectionModel().select(settingsTab);
 	}
 

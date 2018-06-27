@@ -112,7 +112,10 @@ public class LoginModel {
 			user = restHandler.loginUser(username, securePassword);
 
 			if (user != null) {
-				if (salt == null) {
+				if (user.getSalt() == null) {
+					cacheProvider.putUserValue(UserCacheKey.CHANGE_PWD, Boolean.TRUE.toString());
+				}
+				else if (salt == null) {
 					try {
 						dbHandler.updateUser(user);
 					}
@@ -125,6 +128,7 @@ public class LoginModel {
 				cacheProvider.putUserValue(UserCacheKey.USERNAME, user.getUsername());
 				cacheProvider.putUserValue(UserCacheKey.IS_ADMIN, Boolean.valueOf(user.isAdmin()).toString());
 				cacheProvider.putUserValue(UserCacheKey.PASSWORD, user.getPassword());
+				cacheProvider.putUserValue(UserCacheKey.SALT, user.getSalt());
 				Platform.runLater(() -> status.set(Status.SUCCESS));
 			}
 			else {
@@ -132,6 +136,7 @@ public class LoginModel {
 				cacheProvider.removeUserValue(UserCacheKey.USERNAME);
 				cacheProvider.removeUserValue(UserCacheKey.PASSWORD);
 				cacheProvider.removeUserValue(UserCacheKey.IS_ADMIN);
+				cacheProvider.removeUserValue(UserCacheKey.SALT);
 				Platform.runLater(() -> status.set(Status.FAILED));
 			}
 		});
