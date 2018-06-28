@@ -5,6 +5,7 @@ public enum UserCacheKey {
 	IS_ADMIN("is.admin", Boolean.class),
 	PASSWORD("password", String.class),
 	SALT("salt", String.class),
+	SESSION("session", String.class),
 	USER_ID("user_id", String.class),
 	USERNAME("username", String.class);
 

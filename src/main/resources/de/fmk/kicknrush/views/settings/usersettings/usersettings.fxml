@@ -39,7 +39,7 @@
                 <PasswordField fx:id="newPasswordInput" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" />
                 <Label text="%password.new.repeat" GridPane.rowIndex="4" />
                 <PasswordField fx:id="repeatPasswordInput" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" />
-                <Button mnemonicParsing="false" onAction="#onSave" text="%btn.save" GridPane.rowIndex="5">
+                <Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSave" text="%btn.save" GridPane.rowIndex="5">
                     <GridPane.margin>
                         <Insets top="5.0" />
                     </GridPane.margin>

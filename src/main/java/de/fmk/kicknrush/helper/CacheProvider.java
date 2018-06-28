@@ -68,7 +68,7 @@ public class CacheProvider {
 	public boolean getBooleanUserValue(UserCacheKey key, boolean fallback) {
 		final String value;
 
-		if (key == null || key.getValueClass() != Boolean.class || cachedSettings == null || cachedSettings.get(key) == null)
+		if (key == null || key.getValueClass() != Boolean.class || cachedUserValues == null || cachedUserValues.get(key) == null)
 			return fallback;
 
 		value = cachedUserValues.get(key);

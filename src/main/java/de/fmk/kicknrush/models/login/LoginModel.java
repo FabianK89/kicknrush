@@ -129,6 +129,7 @@ public class LoginModel {
 				cacheProvider.putUserValue(UserCacheKey.IS_ADMIN, Boolean.valueOf(user.isAdmin()).toString());
 				cacheProvider.putUserValue(UserCacheKey.PASSWORD, user.getPassword());
 				cacheProvider.putUserValue(UserCacheKey.SALT, user.getSalt());
+				cacheProvider.putUserValue(UserCacheKey.SESSION, user.getSessionID());
 				Platform.runLater(() -> status.set(Status.SUCCESS));
 			}
 			else {
@@ -137,6 +138,7 @@ public class LoginModel {
 				cacheProvider.removeUserValue(UserCacheKey.PASSWORD);
 				cacheProvider.removeUserValue(UserCacheKey.IS_ADMIN);
 				cacheProvider.removeUserValue(UserCacheKey.SALT);
+				cacheProvider.removeUserValue(UserCacheKey.SESSION);
 				Platform.runLater(() -> status.set(Status.FAILED));
 			}
 		});
