@@ -7,11 +7,12 @@ import de.fmk.kicknrush.security.PasswordUtils;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.List;
 
 
 public class UserSettingsModel {
-	@Inject
+	@Inject @Named(CacheProvider.CACHE_ID)
 	private CacheProvider cacheProvider;
 	@Inject
 	private RestHandler   restHandler;

@@ -8,6 +8,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -17,7 +18,7 @@ import java.util.Properties;
  * Helper class for the application.
  */
 public class ApplicationHelper {
-	@Inject
+	@Inject @Named(CacheProvider.CACHE_ID)
 	private CacheProvider cacheProvider;
 
 

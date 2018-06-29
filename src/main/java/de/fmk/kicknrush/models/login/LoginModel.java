@@ -96,12 +96,8 @@ public class LoginModel {
 			String salt;
 
 			try {
-				salt = dbHandler.readSalt(username);
-
-				if (salt == null)
-					securePassword = password;
-				else
-					securePassword = PasswordUtils.generateSecurePassword(password, salt);
+				salt           = dbHandler.readSalt(username);
+				securePassword = salt == null ? password : PasswordUtils.generateSecurePassword(password, salt);
 			}
 			catch (SQLException sqlex) {
 				LOGGER.error("Could not connect to internal data base.", sqlex);
