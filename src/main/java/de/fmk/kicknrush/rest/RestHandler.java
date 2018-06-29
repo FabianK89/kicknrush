@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,7 +20,7 @@ import java.util.Map;
 
 
 public class RestHandler {
-	@Inject
+	@Inject @Named(CacheProvider.CACHE_ID)
 	private CacheProvider cacheProvider;
 
 	private String       baseUrl;
@@ -37,24 +38,31 @@ public class RestHandler {
 		final Map<String, String>  uriVariables;
 		final ResponseEntity<User> response;
 
-
 		uriVariables = new HashMap<>();
 		uriVariables.put("username", username);
 		uriVariables.put("password", password);
 
-		try {
-			response = restTemplate.getForEntity(baseUrl.concat("/user/login?username={username}&password={password}"),
-			                                     User.class,
-			                                     uriVariables);
+		response = restTemplate.getForEntity(baseUrl.concat("/user/login?username={username}&password={password}"),
+		                                     User.class,
+		                                     uriVariables);
 
-			if (HttpStatus.OK == response.getStatusCode())
-				return response.getBody();
-		}
-		catch (Exception ex) {
-			return null;
-		}
+		if (HttpStatus.OK == response.getStatusCode())
+			return response.getBody();
 
 		return null;
+	}
+
+
+	public boolean logout() {
+		final Map<String, String>    uriVariables;
+		final ResponseEntity<String> response;
+
+		uriVariables = new HashMap<>();
+		uriVariables.put("userID", cacheProvider.getUserValue(UserCacheKey.USER_ID));
+
+		response = restTemplate.getForEntity(baseUrl.concat("/user/logout?userID={userID}"), String.class, uriVariables);
+
+		return HttpStatus.OK == response.getStatusCode();
 	}
 
 

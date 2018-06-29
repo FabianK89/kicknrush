@@ -59,7 +59,10 @@ public class DashboardPresenter implements Initializable {
 		final Stage primaryStage;
 
 		primaryStage = App.getPrimaryStage();
-		primaryStage.setOnCloseRequest(event -> model.logout());
+		primaryStage.setOnCloseRequest(event -> {
+			if (!model.logout())
+				event.consume();
+		});
 		primaryStage.widthProperty().addListener((observable, oldWidth, newWidth) ->
 				cacheProvider.putSetting(SettingCacheKey.WINDOW_WIDTH, newWidth.toString()));
 		primaryStage.heightProperty().addListener((observable, oldHeight, newHeight) ->
@@ -71,14 +74,14 @@ public class DashboardPresenter implements Initializable {
 
 	@FXML
 	private void onLogout() {
-		model.logout();
-		appHelper.changeView(new LoginView().getView(), false);
+		if (model.logout())
+			appHelper.changeView(new LoginView().getView(), false);
 	}
 
 
 	@FXML
 	private void onQuit() {
-		model.logout();
-		Platform.exit();
+		if (model.logout())
+			Platform.exit();
 	}
 }

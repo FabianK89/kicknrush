@@ -2,7 +2,7 @@ package de.fmk.kicknrush.models.dashboard;
 
 import de.fmk.kicknrush.db.DatabaseHandler;
 import de.fmk.kicknrush.helper.CacheProvider;
-import de.fmk.kicknrush.helper.UserCacheKey;
+import de.fmk.kicknrush.rest.RestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,9 +18,16 @@ public class DashboardModel {
 	private CacheProvider   cacheProvider;
 	@Inject
 	private DatabaseHandler dbHandler;
+	@Inject
+	private RestHandler     restHandler;
 
 
-	public void logout() {
+	public boolean logout() {
+		if (!restHandler.logout()) {
+			LOGGER.warn("Could not log out the user.");
+			return false;
+		}
+
 		cacheProvider.clearUserCache();
 
 		try {
@@ -29,5 +36,7 @@ public class DashboardModel {
 		catch (SQLException sqlex) {
 			LOGGER.error("Could not save settings.", sqlex);
 		}
+
+		return true;
 	}
 }
