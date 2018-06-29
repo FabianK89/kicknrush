@@ -9,7 +9,7 @@ public final class DBConstants {
 	public static final String COL_NAME_USERNAME = "USERNAME";
 	public static final String COL_NAME_VALUE    = "VALUE";
 
-	public static final String TBL_NAME_SETTINGS = "SETTINGS";
+	public static final String TBL_NAME_SETTINGS = "USER_SETTINGS";
 	public static final String TBL_NAME_USER     = "USER";
 
 
