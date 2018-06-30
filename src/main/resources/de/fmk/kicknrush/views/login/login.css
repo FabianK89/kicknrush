@@ -1,0 +1,63 @@
+@font-face {
+    src: url("../../fonts/Exo2-Medium.otf");
+}
+
+* {
+    -fx-color-dark-gradient: linear-gradient(to bottom, rgba(25,25,25,0.65), rgba(125,125,125,0.65));
+    -fx-color-green-gradient-less-opacity: linear-gradient(to bottom, rgba(0,185,0,0.4), rgba(0,95,0,0.4));
+    -fx-color-white-gradient: linear-gradient(to bottom, rgba(255,255,255,0.75), rgba(155,155,155,0.75));
+    -fx-color-white-gradient-less-opacity: linear-gradient(to bottom, rgba(255,255,255,0.4), rgba(155,155,155,0.4));
+    -fx-font-family: "Exo 2 Medium";
+}
+
+.black-pane {
+    -fx-background-color: rgba(25,25,25,0.75);
+}
+
+.button {
+    -fx-background-color: -fx-color-white-gradient; /*linear-gradient(to bottom, rgba(255,255,255,0.65), rgba(155,155,155,0.65));*/
+    -fx-background-insets: 0;
+    -fx-text-fill: black;
+}
+.button:default {
+    -fx-background-color: -fx-color-white-gradient-less-opacity, -fx-color-green-gradient-less-opacity;
+}
+.button:hover {
+    -fx-background-color: -fx-color-dark-gradient;
+    -fx-text-fill: white;
+}
+
+.button-left {
+    -fx-background-color: -fx-color-white-gradient;
+    -fx-background-radius: 0;
+}
+
+.label {
+    -fx-text-fill: white;
+}
+
+.login-background {
+    -fx-background-image: url("images/login_background.png");
+}
+
+.progress-bar .track {
+    -fx-background-color: transparent;
+}
+.progress-bar .bar {
+    -fx-accent: green;
+    -fx-background-insets: 1 1 2 1;
+    -fx-padding: 0.20em;
+}
+
+.text-field {
+    -fx-background-color: -fx-color-white-gradient;
+    -fx-background-insets: 0;
+    -fx-text-fill: black;
+}
+.text-field:focused {
+    -fx-background-color: -fx-color-white-gradient-less-opacity, -fx-color-green-gradient-less-opacity;
+}
+.text-field:hover {
+    -fx-background-color: -fx-color-dark-gradient;
+    -fx-text-fill: white;
+}

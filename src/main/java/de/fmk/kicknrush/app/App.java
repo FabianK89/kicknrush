@@ -1,9 +1,11 @@
 package de.fmk.kicknrush.app;
 
 import de.fmk.kicknrush.db.DatabaseHandler;
+import de.fmk.kicknrush.helper.ResourceHelper;
 import de.fmk.kicknrush.views.login.LoginView;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 
@@ -20,6 +22,7 @@ public class App extends Application {
 		login = new LoginView();
 
 		primaryStage.setTitle("Kick'n'Rush");
+		primaryStage.getIcons().addAll(ResourceHelper.getAppIcons());
 		primaryStage.setScene(new Scene(login.getView()));
 		primaryStage.setResizable(false);
 		primaryStage.show();

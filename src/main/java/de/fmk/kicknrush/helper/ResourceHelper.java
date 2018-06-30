@@ -1,11 +1,23 @@
 package de.fmk.kicknrush.helper;
 
 
+import javafx.scene.image.Image;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Helper class for resource files.
  * @author Fabian Kiesl
  */
 public class ResourceHelper {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceHelper.class);
+
+
 	/**
 	 * Get the relative path to a resource file laying in the resource package of the given class.
 	 * @param clazz A class.
@@ -28,5 +40,31 @@ public class ResourceHelper {
 		pathBuilder.append(packageName.replace(".", "/")).append("/").append(fileName);
 
 		return new String(pathBuilder);
+	}
+
+
+	/**
+	 * Load the app icons.
+	 * @return a list with the app icons.
+	 */
+	public static List<Image> getAppIcons() {
+		final List<Image> appImages;
+		final String      packagePath;
+		final String[]    imageNames;
+
+		appImages   = new ArrayList<>();
+		packagePath = "/de/fmk/kicknrush/images/";
+		imageNames  = new String[] { "app_icon16x16.png", "app_icon32x32.png", "app_icon64x64.png" };
+
+		for (final String name : imageNames) {
+			try (InputStream is = ResourceHelper.class.getResourceAsStream(packagePath.concat(name))) {
+				appImages.add(new Image(is));
+			}
+			catch (IOException ioex) {
+				LOGGER.error("Could not load the image with name '{}'.", name, ioex);
+			}
+		}
+
+		return appImages;
 	}
 }

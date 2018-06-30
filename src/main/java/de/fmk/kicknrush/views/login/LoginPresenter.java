@@ -10,10 +10,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import org.pdfsam.ui.RingProgressIndicator;
 
 import javax.inject.Inject;
 import java.net.URL;
@@ -33,7 +35,7 @@ public class LoginPresenter implements Initializable {
 	@Inject
 	private ApplicationHelper appHelper;
 	@Inject
-	private LoginModel model;
+	private LoginModel        model;
 
 	private ResourceBundle bundle;
 	private VBox           loadingPane;
@@ -101,6 +103,8 @@ public class LoginPresenter implements Initializable {
 
 		progress    = new ProgressIndicator(-1.0);
 		loadingPane = new VBox(progress);
+
+		loadingPane.getStyleClass().add("black-pane");
 	}
 
 
@@ -108,6 +112,7 @@ public class LoginPresenter implements Initializable {
 		final Text textNode;
 
 		textNode = new Text(message);
+		textNode.setStyle("-fx-fill: white");
 
 		textFlow.getChildren().clear();
 		textFlow.getChildren().add(textNode);
