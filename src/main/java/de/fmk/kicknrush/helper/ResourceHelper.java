@@ -18,6 +18,9 @@ public class ResourceHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResourceHelper.class);
 
 
+	private ResourceHelper() {}
+
+
 	/**
 	 * Get the relative path to a resource file laying in the resource package of the given class.
 	 * @param clazz A class.
