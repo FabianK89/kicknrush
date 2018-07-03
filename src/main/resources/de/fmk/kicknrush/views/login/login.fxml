@@ -2,7 +2,6 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.ProgressBar?>
@@ -15,7 +14,6 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.TextFlow?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="300.0" prefWidth="350.0" styleClass="login-background" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.fmk.kicknrush.views.login.LoginPresenter">
@@ -49,7 +47,6 @@
                   <Insets top="5.0" />
                </GridPane.margin>
             </TextFlow>
-            <ProgressBar maxWidth="1.7976931348623157E308" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" />
          </children>
          <BorderPane.margin>
             <Insets left="10.0" right="10.0" />
@@ -60,31 +57,18 @@
       </GridPane>
    </center>
    <bottom>
-      <VBox BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER_RIGHT" styleClass="black-pane">
+         <children>
+            <Button defaultButton="true" onAction="#onLogin" styleClass="button-left" text="%btn.login" />
+            <Button onAction="#onQuit" styleClass="button-right" text="%btn.quit" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
          <BorderPane.margin>
             <Insets bottom="10.0" left="10.0" right="10.0" />
          </BorderPane.margin>
-         <children>
-            <ButtonBar styleClass="black-pane">
-              <buttons>
-                <Button defaultButton="true" onAction="#onLogin" text="%btn.login" />
-                  <Button onAction="#onQuit" text="%btn.quit" />
-              </buttons>
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-            </ButtonBar>
-            <HBox alignment="CENTER_RIGHT" styleClass="black-pane">
-               <children>
-                  <Button mnemonicParsing="false" styleClass="button-left" text="Button" />
-                  <Button mnemonicParsing="false" styleClass="button-right" text="Button" />
-               </children>
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-            </HBox>
-         </children>
-      </VBox>
+      </HBox>
    </bottom>
    <top>
       <AnchorPane styleClass="black-pane" BorderPane.alignment="CENTER">
@@ -97,6 +81,7 @@
                   <Image url="@../../images/login_logo.png" />
                </image>
             </ImageView>
+            <ProgressBar fx:id="progressBar" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="243.0" AnchorPane.bottomAnchor="34.0" AnchorPane.leftAnchor="45.0" AnchorPane.topAnchor="61.0" />
          </children>
       </AnchorPane>
    </top>

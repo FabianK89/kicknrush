@@ -1,6 +1,8 @@
 package de.fmk.kicknrush.views.login;
 
 import de.fmk.kicknrush.helper.ApplicationHelper;
+import de.fmk.kicknrush.helper.CacheProvider;
+import de.fmk.kicknrush.helper.SettingCacheKey;
 import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.models.login.LoginModel;
 import de.fmk.kicknrush.views.dashboard.DashboardView;
@@ -8,6 +10,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
@@ -16,6 +19,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -26,38 +30,40 @@ public class LoginPresenter implements Initializable {
 	@FXML
 	private PasswordField passwordInput;
 	@FXML
+	private ProgressBar   progressBar;
+	@FXML
 	private TextField     usernameInput;
 	@FXML
 	private TextFlow      textFlow;
 
 	@Inject
 	private ApplicationHelper appHelper;
+	@Inject @Named(CacheProvider.CACHE_ID)
+	private CacheProvider     cacheProvider;
 	@Inject
 	private LoginModel        model;
 
 	private ResourceBundle bundle;
-	private VBox           loadingPane;
 
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		bundle = resources;
 
-		initLoadingPane();
+		progressBar.visibleProperty().bind(model.statusProperty().isEqualTo(Status.RUNNING));
 
 		model.loadSettings();
 
 		model.statusProperty().addListener((observable, oldStatus, newStatus) -> {
-			if (Status.RUNNING == newStatus) {
-				grid.add(loadingPane, 0, 0, 1, Integer.MAX_VALUE);
-				return;
-			}
-			grid.getChildren().remove(loadingPane);
-
 			if (Status.FAILED == newStatus){
 				showMessage(bundle.getString("msg.login.failed"));
 			}
 			else if (Status.SUCCESS == newStatus) {
+				cacheProvider.putSetting(SettingCacheKey.LOGIN_WINDOW_HEIGHT,
+				                         Double.toString(grid.getScene().getWindow().getHeight()));
+				cacheProvider.putSetting(SettingCacheKey.LOGIN_WINDOW_WIDTH,
+				                         Double.toString(grid.getScene().getWindow().getWidth()));
+
 				appHelper.changeView(new DashboardView().getView(), true);
 			}
 		});
@@ -93,16 +99,6 @@ public class LoginPresenter implements Initializable {
 	@FXML
 	private void onQuit() {
 		Platform.exit();
-	}
-
-
-	private void initLoadingPane() {
-		final ProgressIndicator progress;
-
-		progress    = new ProgressIndicator(-1.0);
-		loadingPane = new VBox(progress);
-
-		loadingPane.getStyleClass().add("black-pane");
 	}
 
 

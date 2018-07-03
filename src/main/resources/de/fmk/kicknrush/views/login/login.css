@@ -28,8 +28,10 @@
 }
 
 .button-left {
-    -fx-background-color: -fx-color-white-gradient;
-    -fx-background-radius: 0;
+    -fx-background-radius: 3 0 0 3;
+}
+.button-right {
+    -fx-background-radius: 0 3 3 0;
 }
 
 .label {

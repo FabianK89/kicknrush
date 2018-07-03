@@ -40,8 +40,6 @@ public class ApplicationHelper {
 		id           = pane.getId();
 
 		primaryStage.setScene(new Scene(root));
-		primaryStage.centerOnScreen();
-		primaryStage.setResizable(resizable);
 
 		if ("mainPane".equals(id)) {
 			primaryStage.setHeight(cacheProvider.getDoubleSetting(SettingCacheKey.WINDOW_HEIGHT, pane.getHeight()));
@@ -51,12 +49,15 @@ public class ApplicationHelper {
 			primaryStage.setMaximized(cacheProvider.getBooleanSetting(SettingCacheKey.WINDOW_MAXIMIZED, false));
 		}
 		else {
-			primaryStage.setHeight(pane.getHeight());
-			primaryStage.setWidth(pane.getWidth());
-			primaryStage.setMinHeight(pane.getHeight());
-			primaryStage.setMinWidth(pane.getWidth());
+			primaryStage.setHeight(cacheProvider.getDoubleSetting(SettingCacheKey.LOGIN_WINDOW_HEIGHT, 350.0));
+			primaryStage.setWidth(cacheProvider.getDoubleSetting(SettingCacheKey.LOGIN_WINDOW_WIDTH, 350.0));
+			primaryStage.setMinHeight(cacheProvider.getDoubleSetting(SettingCacheKey.LOGIN_WINDOW_HEIGHT, 350.0));
+			primaryStage.setMinWidth(cacheProvider.getDoubleSetting(SettingCacheKey.LOGIN_WINDOW_WIDTH, 350.0));
 			primaryStage.setMaximized(false);
 		}
+
+		primaryStage.centerOnScreen();
+		primaryStage.setResizable(resizable);
 	}
 
 

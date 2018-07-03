@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -42,12 +44,17 @@ public class RestHandler {
 		uriVariables.put("username", username);
 		uriVariables.put("password", password);
 
-		response = restTemplate.getForEntity(baseUrl.concat("/user/login?username={username}&password={password}"),
-		                                     User.class,
-		                                     uriVariables);
+		try {
+			response = restTemplate.getForEntity(baseUrl.concat("/user/login?username={username}&password={password}"),
+			                                     User.class,
+			                                     uriVariables);
 
-		if (HttpStatus.OK == response.getStatusCode())
-			return response.getBody();
+			if (HttpStatus.OK == response.getStatusCode())
+				return response.getBody();
+		}
+		catch (HttpClientErrorException hceex) {
+			return null;
+		}
 
 		return null;
 	}
@@ -60,9 +67,14 @@ public class RestHandler {
 		uriVariables = new HashMap<>();
 		uriVariables.put("userID", cacheProvider.getUserValue(UserCacheKey.USER_ID));
 
-		response = restTemplate.getForEntity(baseUrl.concat("/user/logout?userID={userID}"), String.class, uriVariables);
+		try {
+			response = restTemplate.getForEntity(baseUrl.concat("/user/logout?userID={userID}"), String.class, uriVariables);
 
-		return HttpStatus.OK == response.getStatusCode();
+			return HttpStatus.OK == response.getStatusCode();
+		}
+		catch (HttpServerErrorException hseex) {
+			return false;
+		}
 	}
 
 
