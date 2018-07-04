@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -15,6 +16,17 @@ import static org.junit.Assert.fail;
 
 
 public class ResourceHelperTest {
+	@Test
+	public void testGetAppIcons() {
+		final List<Image> appIcons;
+
+		appIcons = ResourceHelper.getAppIcons();
+
+		assertFalse(appIcons.isEmpty());
+		assertEquals(3, appIcons.size());
+	}
+
+
 	@Test
 	public void testGetResourcePath() throws Exception {
 		final String path;
@@ -44,12 +56,28 @@ public class ResourceHelperTest {
 
 
 	@Test
-	public void testGetAppIcons() {
-		final List<Image> appIcons;
+	public void testLoadProperties() throws Exception {
+		final Properties properties;
 
-		appIcons = ResourceHelper.getAppIcons();
+		try {
+			ResourceHelper.loadProperties(null, "test.properties");
+			fail("An IllegalArgumentException must occur.");
+		}
+		catch (Exception ex) {
+			assertTrue(ex instanceof IllegalArgumentException);
+		}
 
-		assertFalse(appIcons.isEmpty());
-		assertEquals(3, appIcons.size());
+		try {
+			ResourceHelper.loadProperties(getClass(), null);
+			fail("An IllegalArgumentException must occur.");
+		}
+		catch (Exception ex) {
+			assertTrue(ex instanceof IllegalArgumentException);
+		}
+
+		properties = ResourceHelper.loadProperties(getClass(), "test.properties");
+
+		assertNotNull(properties);
+		assertEquals("1", properties.getProperty("test"));
 	}
 }
