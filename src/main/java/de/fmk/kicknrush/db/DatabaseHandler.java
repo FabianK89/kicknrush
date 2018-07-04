@@ -14,8 +14,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 
@@ -30,13 +32,18 @@ public class DatabaseHandler {
 	private final BasicDataSource connectionPool;
 
 
-	public DatabaseHandler() {
+	public DatabaseHandler(Properties properties) {
 		connectionPool = new BasicDataSource();
-		connectionPool.setDriver(new Driver());
-		connectionPool.setUrl("jdbc:h2:~/.kicknrush/data");
-		connectionPool.setUsername("dbadmin");
-		connectionPool.setPassword("admin1234");
-		connectionPool.setTestWhileIdle(true);
+
+		if (properties == null)
+			throw new IllegalArgumentException("Properties must not be null.");
+
+		initConnectionPool(properties);
+	}
+
+
+	public void closeConnections() throws SQLException {
+		connectionPool.close();
 	}
 
 
@@ -58,101 +65,32 @@ public class DatabaseHandler {
 	}
 
 
-	public void updateUser(final User user) throws SQLException {
+	public void loadSettings(final CacheProvider cacheProvider) throws SQLException {
 		final StringBuilder queryBuilder;
 
-		try (Connection connection = connectionPool.getConnection()) {
+		try (Connection connection = connectionPool.getConnection())
+		{
 			queryBuilder = new StringBuilder();
-			queryBuilder.append("MERGE INTO ").append(DBConstants.TBL_NAME_USER).append(" VALUES(?,?,?,?,?);");
+			queryBuilder.append(SELECT_ALL_FROM).append(DBConstants.TBL_NAME_SETTINGS).append(";");
 
-			try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString())) {
-				statement.setObject(1, UUID.fromString(user.getId()));
-				statement.setString(2, user.getUsername());
-				statement.setString(3, user.getPassword());
-				statement.setString(4, user.getSalt());
-				statement.setBoolean(5, user.isAdmin());
+			try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString()))
+			{
+				try (ResultSet result = statement.executeQuery())
+				{
+					while (result.next())
+					{
+						final SettingCacheKey key;
 
-				if (1 != statement.executeUpdate())
-					LOGGER.warn("Could not update the user with id '{}'.", user.getId());
-			}
-			catch (SQLException sqlex) {
-				LOGGER.error("Could not update the user with id '{}'.", user.getId(), sqlex);
-			}
-		}
-	}
+						key = SettingCacheKey.getByKey(result.getString(DBConstants.COL_NAME_KEY));
 
-
-	public String readSalt(final String username) throws SQLException {
-		final StringBuilder queryBuilder;
-
-		if (username == null)
-			throw new IllegalArgumentException("The username must not be null.");
-
-		queryBuilder = new StringBuilder();
-		queryBuilder.append(SELECT_ALL_FROM).append(DBConstants.TBL_NAME_USER)
-		            .append(WHERE).append(DBConstants.COL_NAME_USERNAME).append("=?;");
-
-		try (Connection connection = connectionPool.getConnection()) {
-			try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString())) {
-				statement.setString(1, username);
-
-				try (ResultSet rs = statement.executeQuery()) {
-					if (rs.next())
-						return rs.getString(DBConstants.COL_NAME_SALT);
+						cacheProvider.putSetting(key, result.getString(DBConstants.COL_NAME_VALUE));
+					}
 				}
 			}
-			catch (SQLException sqlex) {
-				LOGGER.error("An error occurred while reading the salt value for user '{}'.", username, sqlex);
+			catch (SQLException sqlex)
+			{
+				LOGGER.error("An error occurred while reading the settings from the database.", sqlex);
 			}
-		}
-
-		return null;
-	}
-
-
-	private List<String> getExistingTables(final Connection connection) throws SQLException {
-		final List<String> existingTables = new ArrayList<>();
-
-		if (connection == null || connection.isClosed())
-			throw new IllegalStateException(NO_CONNECTION);
-
-		try (Statement statement = connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.TABLES")) {
-				while (rs.next())
-					existingTables.add(rs.getString("TABLE_NAME"));
-			}
-			catch (SQLException sqlex) {
-				LOGGER.error("An error occurred while searching for existing tables.", sqlex);
-			}
-		}
-
-		return existingTables;
-	}
-
-
-	public void saveSettings(final Map<SettingCacheKey, String> cachedSettings) throws SQLException {
-		final StringBuilder queryBuilder;
-
-		if (cachedSettings == null || cachedSettings.isEmpty())
-			return;
-
-		queryBuilder = new StringBuilder();
-		queryBuilder.append("MERGE INTO ").append(DBConstants.TBL_NAME_SETTINGS)
-		            .append(" KEY(").append(DBConstants.COL_NAME_KEY).append(") VALUES(?,?);");
-
-		try (Connection connection = connectionPool.getConnection()) {
-			cachedSettings.forEach((key, value) -> {
-				try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString())) {
-					statement.setString(1, key.getKey());
-					statement.setString(2, value);
-
-					if (1 != statement.executeUpdate())
-						LOGGER.warn("The setting '{}' could not have been saved.", key.getKey());
-				}
-				catch (SQLException sqlex) {
-					LOGGER.error("An error occurred while saving the setting '{}'.", key.getKey(), sqlex);
-				}
-			});
 		}
 	}
 
@@ -191,6 +129,7 @@ public class DatabaseHandler {
 
 						user.setUsername(result.getString(DBConstants.COL_NAME_USERNAME));
 						user.setPassword(result.getString(DBConstants.COL_NAME_PWD));
+						user.setAdmin(result.getBoolean(DBConstants.COL_NAME_IS_ADMIN));
 
 						return user;
 					}
@@ -202,57 +141,106 @@ public class DatabaseHandler {
 	}
 
 
-	private boolean adminAccountExists(final Connection connection) throws SQLException {
+	public String readSalt(final String username) throws SQLException {
+		final StringBuilder queryBuilder;
+
+		if (username == null)
+			throw new IllegalArgumentException("The username must not be null.");
+
+		queryBuilder = new StringBuilder();
+		queryBuilder.append(SELECT_ALL_FROM).append(DBConstants.TBL_NAME_USER)
+		            .append(WHERE).append(DBConstants.COL_NAME_USERNAME).append("=?;");
+
+		try (Connection connection = connectionPool.getConnection()) {
+			try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString())) {
+				statement.setString(1, username);
+
+				try (ResultSet rs = statement.executeQuery()) {
+					if (rs.next())
+						return rs.getString(DBConstants.COL_NAME_SALT);
+				}
+			}
+			catch (SQLException sqlex) {
+				LOGGER.error("An error occurred while reading the salt value for user '{}'.", username, sqlex);
+			}
+		}
+
+		return null;
+	}
+
+
+	public void saveSettings(final Map<SettingCacheKey, String> cachedSettings) throws SQLException {
+		final StringBuilder queryBuilder;
+
+		if (cachedSettings == null || cachedSettings.isEmpty())
+			return;
+
+		queryBuilder = new StringBuilder();
+		queryBuilder.append("MERGE INTO ").append(DBConstants.TBL_NAME_SETTINGS)
+		            .append(" KEY(").append(DBConstants.COL_NAME_KEY).append(") VALUES(?,?);");
+
+		try (Connection connection = connectionPool.getConnection()) {
+			cachedSettings.forEach((key, value) -> {
+				try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString())) {
+					statement.setString(1, key.getKey());
+					statement.setString(2, value);
+
+					if (1 != statement.executeUpdate())
+						LOGGER.warn("The setting '{}' could not have been saved.", key.getKey());
+				}
+				catch (SQLException sqlex) {
+					LOGGER.error("An error occurred while saving the setting '{}'.", key.getKey(), sqlex);
+				}
+			});
+		}
+	}
+
+
+	public void updateUser(final User user) throws SQLException {
+		final StringBuilder queryBuilder;
+
+		if (user == null)
+			throw new IllegalArgumentException("The user must not be null.");
+
+		try (Connection connection = connectionPool.getConnection()) {
+			queryBuilder = new StringBuilder();
+			queryBuilder.append("MERGE INTO ").append(DBConstants.TBL_NAME_USER).append(" VALUES(?,?,?,?,?);");
+
+			try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString())) {
+				statement.setObject(1, UUID.fromString(user.getId()));
+				statement.setString(2, user.getUsername());
+				statement.setString(3, user.getPassword());
+				statement.setString(4, user.getSalt());
+				statement.setBoolean(5, user.isAdmin());
+
+				if (1 != statement.executeUpdate())
+					LOGGER.warn("Could not update the user with id '{}'.", user.getId());
+			}
+			catch (SQLException sqlex) {
+				LOGGER.error("Could not update the user with id '{}'.", user.getId(), sqlex);
+			}
+		}
+	}
+
+
+	private void createSettingsTable(final Connection connection) throws SQLException {
 		final StringBuilder queryBuilder;
 
 		if (connection == null || connection.isClosed())
 			throw new IllegalStateException(NO_CONNECTION);
 
 		queryBuilder = new StringBuilder();
-		queryBuilder.append("SELECT ").append(DBConstants.COL_NAME_USERNAME)
-		            .append(" FROM ").append(DBConstants.TBL_NAME_USER)
-		            .append(WHERE).append(DBConstants.COL_NAME_USERNAME).append("=?;");
 
-		try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString())) {
-			statement.setString(1, ADMIN);
+		try (Statement statement = connection.createStatement()) {
+			queryBuilder.append("CREATE TABLE IF NOT EXISTS ")
+			            .append(DBConstants.TBL_NAME_SETTINGS)
+			            .append("(").append(DBConstants.COL_NAME_KEY).append(" VARCHAR(255) PRIMARY KEY, ")
+			            .append(DBConstants.COL_NAME_VALUE).append(" VARCHAR(255));");
 
-			try (ResultSet result = statement.executeQuery()) {
-				return result.next();
-			}
+			statement.executeUpdate(queryBuilder.toString());
 		}
 		catch (SQLException sqlex) {
-			LOGGER.error("An error occurred while searching the admin account in the user table.", sqlex);
-			return false;
-		}
-	}
-
-
-	public void loadSettings(final CacheProvider cacheProvider) throws SQLException {
-		final StringBuilder queryBuilder;
-
-		try (Connection connection = connectionPool.getConnection())
-		{
-			queryBuilder = new StringBuilder();
-			queryBuilder.append(SELECT_ALL_FROM).append(DBConstants.TBL_NAME_SETTINGS).append(";");
-
-			try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString()))
-			{
-				try (ResultSet result = statement.executeQuery())
-				{
-					while (result.next())
-					{
-						final SettingCacheKey key;
-
-						key = SettingCacheKey.getByKey(result.getString(DBConstants.COL_NAME_KEY));
-
-						cacheProvider.putSetting(key, result.getString(DBConstants.COL_NAME_VALUE));
-					}
-				}
-			}
-			catch (SQLException sqlex)
-			{
-				LOGGER.error("An error occurred while reading the settings from the database.", sqlex);
-			}
+			LOGGER.error("An error occurred while creating the settings table.", sqlex);
 		}
 	}
 
@@ -282,70 +270,43 @@ public class DatabaseHandler {
 	}
 
 
-	private void createSettingsTable(final Connection connection) throws SQLException {
-		final StringBuilder queryBuilder;
+
+	private  List<String> getExistingTables(final Connection connection) throws SQLException {
+		final List<String> existingTables = new ArrayList<>();
 
 		if (connection == null || connection.isClosed())
 			throw new IllegalStateException(NO_CONNECTION);
-
-		queryBuilder = new StringBuilder();
 
 		try (Statement statement = connection.createStatement()) {
-			queryBuilder.append("CREATE TABLE IF NOT EXISTS ")
-			            .append(DBConstants.TBL_NAME_SETTINGS)
-			            .append("(").append(DBConstants.COL_NAME_KEY).append(" VARCHAR(255) PRIMARY KEY, ")
-			            .append(DBConstants.COL_NAME_VALUE).append(" VARCHAR(255));");
+			try (ResultSet rs = statement.executeQuery("SELECT * FROM INFORMATION_SCHEMA.TABLES")) {
+				while (rs.next())
+					existingTables.add(rs.getString("TABLE_NAME"));
+			}
+			catch (SQLException sqlex) {
+				LOGGER.error("An error occurred while searching for existing tables.", sqlex);
+			}
+		}
 
-			statement.executeUpdate(queryBuilder.toString());
-		}
-		catch (SQLException sqlex) {
-			LOGGER.error("An error occurred while creating the settings table.", sqlex);
-		}
+		return existingTables;
 	}
 
 
-	private void fillPreparedStatement(final PreparedStatement statement, final int index, final Object value)
-			throws SQLException {
-		if (value instanceof String)
-			statement.setString(index, (String) value);
-		else if (value instanceof UUID)
-			statement.setObject(index, value);
+	private void initConnectionPool(final Properties properties) {
+		connectionPool.setDriver(new Driver());
+		connectionPool.setUrl(properties.getProperty("db.url"));
+		connectionPool.setUsername(properties.getProperty("db.user"));
+		connectionPool.setPassword(properties.getProperty("db.password"));
+		connectionPool.setTestWhileIdle(true);
 	}
 
 
-	private void insertIntoTable(final Connection connection, final String tableName, final Object... values)
-			throws SQLException {
-		final int           result;
-		final StringBuilder queryBuilder;
-
-		if (connection == null || connection.isClosed())
-			throw new IllegalStateException(NO_CONNECTION);
-
-		LOGGER.info("Insert data into table {}.", tableName);
-
-		queryBuilder = new StringBuilder();
-		queryBuilder.append("INSERT INTO ").append(tableName).append(" VALUES(");
-
-		for (int i = 0; i < values.length; i++) {
-			queryBuilder.append("?");
-
-			if (i < values.length - 1)
-				queryBuilder.append(", ");
-		}
-
-		queryBuilder.append(");");
-
-		try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString())) {
-			for (int i = 1; i <= values.length; i++)
-				fillPreparedStatement(statement, i, values[i-1]);
-
-			result = statement.executeUpdate();
-
-			if (result == 1)
-				LOGGER.info("Data was successfully inserted into the table {}.", tableName);
+	public List<String> getExistingTables() {
+		try (Connection connection = connectionPool.getConnection()) {
+			return getExistingTables(connection);
 		}
 		catch (SQLException sqlex) {
-			LOGGER.error("An error occurred while inserting data into table {}.", tableName, sqlex);
+			LOGGER.error("An error occurred while connecting to the database.", sqlex);
+			return Collections.emptyList();
 		}
 	}
 }

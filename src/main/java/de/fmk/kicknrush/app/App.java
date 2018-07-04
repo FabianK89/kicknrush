@@ -5,8 +5,9 @@ import de.fmk.kicknrush.helper.ResourceHelper;
 import de.fmk.kicknrush.views.login.LoginView;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
+
+import java.util.Properties;
 
 
 public class App extends Application {
@@ -32,10 +33,12 @@ public class App extends Application {
 	@Override
 	public void init() throws Exception {
 		final DatabaseHandler dbHandler;
+		final Properties      properties;
 
 		super.init();
 
-		dbHandler = new DatabaseHandler();
+		properties = ResourceHelper.loadProperties(DatabaseHandler.class, "db.properties");
+		dbHandler  = new DatabaseHandler(properties);
 		dbHandler.createInitialTables();
 	}
 

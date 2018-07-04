@@ -96,7 +96,7 @@ public class LoginModelTestCase {
 
 		when(dbHandler.loginUser(null, null)).thenThrow(new SQLException());
 		when(dbHandler.loginUser("Test", "abc")).thenReturn(null);
-		when(dbHandler.loginUser(ADMIN, PWD)).thenReturn(new User("uuid", ADMIN, PWD));
+		when(dbHandler.loginUser(ADMIN, PWD)).thenReturn(new User("uuid", true, PWD, "salt", ADMIN, "sessionid"));
 
 		doNothing().when(m_cacheProvider).putUserValue(isA(UserCacheKey.class), valueCapture.capture());
 
