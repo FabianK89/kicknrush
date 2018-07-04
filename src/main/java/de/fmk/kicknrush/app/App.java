@@ -1,5 +1,6 @@
 package de.fmk.kicknrush.app;
 
+import com.airhacks.afterburner.injection.Injector;
 import de.fmk.kicknrush.db.DatabaseHandler;
 import de.fmk.kicknrush.helper.ResourceHelper;
 import de.fmk.kicknrush.views.login.LoginView;
@@ -7,16 +8,26 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 
 public class App extends Application {
 	private static Stage stage;
 
+	private DatabaseHandler dbHandler;
+
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		final LoginView login;
+		final LoginView           login;
+		final Map<Object, Object> customProperties;
+
+		customProperties = new HashMap<>();
+		customProperties.put("dbHandler", dbHandler);
+
+		Injector.setConfigurationSource(customProperties::get);
 
 		setPrimaryStage(primaryStage);
 
@@ -32,8 +43,7 @@ public class App extends Application {
 
 	@Override
 	public void init() throws Exception {
-		final DatabaseHandler dbHandler;
-		final Properties      properties;
+		final Properties properties;
 
 		super.init();
 
@@ -46,6 +56,9 @@ public class App extends Application {
 	@Override
 	public void stop() throws Exception
 	{
+		Injector.forgetAll();
+		dbHandler.closeConnections();
+
 		super.stop();
 	}
 
