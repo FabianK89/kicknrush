@@ -1,7 +1,7 @@
 package de.fmk.kicknrush.models.settings;
 
-import de.fmk.kicknrush.helper.CacheProvider;
-import de.fmk.kicknrush.helper.UserCacheKey;
+import de.fmk.kicknrush.helper.cache.CacheProvider;
+import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.rest.RestHandler;
 import de.fmk.kicknrush.security.PasswordUtils;
 
@@ -23,7 +23,7 @@ public class UserSettingsModel {
 	@PostConstruct
 	public void init() {
 		usernames = restHandler.getUsernames();
-		usernames.remove(cacheProvider.getUserValue(UserCacheKey.USERNAME));
+		usernames.remove(cacheProvider.getUserCache().getStringValue(UserCacheKey.USERNAME));
 	}
 
 
@@ -31,13 +31,13 @@ public class UserSettingsModel {
 		if (password == null || password.isEmpty())
 			return false;
 
-		if (cacheProvider.getBooleanUserValue(UserCacheKey.CHANGE_PWD, false)) {
-			return password.equals(cacheProvider.getUserValue(UserCacheKey.PASSWORD));
+		if (cacheProvider.getUserCache().getBooleanValue(UserCacheKey.CHANGE_PWD, false)) {
+			return password.equals(cacheProvider.getUserCache().getStringValue(UserCacheKey.PASSWORD));
 		}
 		else {
 			return PasswordUtils.verifyUserPassword(password,
-			                                        cacheProvider.getUserValue(UserCacheKey.PASSWORD),
-			                                        cacheProvider.getUserValue(UserCacheKey.SALT));
+			                                        cacheProvider.getUserCache().getStringValue(UserCacheKey.PASSWORD),
+			                                        cacheProvider.getUserCache().getStringValue(UserCacheKey.SALT));
 		}
 	}
 
@@ -65,9 +65,9 @@ public class UserSettingsModel {
 		salt           = PasswordUtils.getSalt(255);
 		secretPassword = PasswordUtils.generateSecurePassword(newPassword, salt);
 
-		cacheProvider.putUserValue(UserCacheKey.USERNAME, username);
-		cacheProvider.putUserValue(UserCacheKey.PASSWORD, secretPassword);
-		cacheProvider.putUserValue(UserCacheKey.SALT, salt);
+		cacheProvider.getUserCache().putStringValue(UserCacheKey.USERNAME, username);
+		cacheProvider.getUserCache().putStringValue(UserCacheKey.PASSWORD, secretPassword);
+		cacheProvider.getUserCache().putStringValue(UserCacheKey.SALT, salt);
 
 		restHandler.updateUser(username, secretPassword, salt);
 	}

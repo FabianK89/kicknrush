@@ -1,11 +1,20 @@
-package de.fmk.kicknrush.helper;
+package de.fmk.kicknrush.helper.cache;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 
+/**
+ * @author FabianK
+ */
 public class UserCacheKeyTest {
+
+	@Test
+	public void testGetValueClass() {
+		assertEquals(Boolean.class, UserCacheKey.IS_ADMIN.getValueClass());
+	}
+
 
 	@Test
 	public void testGetKey() {

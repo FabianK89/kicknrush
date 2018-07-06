@@ -1,6 +1,9 @@
-package de.fmk.kicknrush.helper;
+package de.fmk.kicknrush.helper.cache;
 
-public enum UserCacheKey {
+/**
+ * Keys that are used in the user cache.
+ */
+public enum UserCacheKey implements ICacheKey {
 	CHANGE_PWD("change.password", Boolean.class),
 	IS_ADMIN("is.admin", Boolean.class),
 	PASSWORD("password", String.class),
@@ -20,16 +23,23 @@ public enum UserCacheKey {
 	}
 
 
+	@Override
 	public Class<?> getValueClass() {
 		return valueClass;
 	}
 
 
+	@Override
 	public String getKey() {
 		return key;
 	}
 
 
+	/**
+	 * @param key The key identifier.
+	 * @return the UserCacheKey for this key identifier.
+	 * @throws java.lang.IllegalArgumentException if no key could be found.
+	 */
 	public static UserCacheKey getByKey(String key) {
 		for (final UserCacheKey cacheKey : values())
 		{

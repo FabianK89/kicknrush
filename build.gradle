@@ -31,8 +31,14 @@ dependencies {
     compile 'org.projectlombok:lombok:1.18.0'
     compile 'org.slf4j:slf4j-api:1.7.25'
     compile 'org.springframework:spring-web'
-    testCompile 'junit:junit:4.12'
     testCompile 'org.awaitility:awaitility:3.1.0'
+    testCompile 'org.junit.platform:junit-platform-commons:1.2.0'
+    testCompile 'org.junit.platform:junit-platform-launcher:1.2.0'
+    testCompile 'org.junit.platform:junit-platform-runner:1.2.0'
+    testCompile 'org.junit.platform:junit-platform-suite-api:1.2.0'
+    testCompile 'org.junit.jupiter:junit-jupiter-api:5.2.0'
+    testCompile 'org.junit.jupiter:junit-jupiter-migrationsupport:5.2.0'
+    testCompile 'org.junit.jupiter:junit-jupiter-params:5.2.0'
     testCompile 'org.mockito:mockito-core:2.19.0'
 }
 

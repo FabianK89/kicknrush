@@ -1,8 +1,8 @@
 package de.fmk.kicknrush.models.login;
 
 import de.fmk.kicknrush.db.DatabaseHandler;
-import de.fmk.kicknrush.helper.CacheProvider;
-import de.fmk.kicknrush.helper.UserCacheKey;
+import de.fmk.kicknrush.helper.cache.CacheProvider;
+import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.models.pojo.User;
 import javafx.beans.property.ObjectProperty;
@@ -109,7 +109,7 @@ public class LoginModelTestCase {
 
 		await().atMost(2, TimeUnit.SECONDS).until(() -> Status.RUNNING != statusProperty.get());
 		assertEquals(Status.FAILED, loginModel.statusProperty().get());
-		assertNull(m_cacheProvider.getUserValue(UserCacheKey.USERNAME));
+		assertNull(m_cacheProvider.getStringUserValue(UserCacheKey.USERNAME));
 
 		loginModel.login(ADMIN, PWD);
 

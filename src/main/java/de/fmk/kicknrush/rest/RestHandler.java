@@ -1,7 +1,7 @@
 package de.fmk.kicknrush.rest;
 
-import de.fmk.kicknrush.helper.CacheProvider;
-import de.fmk.kicknrush.helper.UserCacheKey;
+import de.fmk.kicknrush.helper.cache.CacheProvider;
+import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.pojo.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +64,7 @@ public class RestHandler {
 		final ResponseEntity<String> response;
 
 		uriVariables = new HashMap<>();
-		uriVariables.put("userID", cacheProvider.getUserValue(UserCacheKey.USER_ID));
+		uriVariables.put("userID", cacheProvider.getUserCache().getStringValue(UserCacheKey.USER_ID));
 
 		try {
 			response = restTemplate.getForEntity(baseUrl.concat("/user/logout?userID={userID}"), String.class, uriVariables);
@@ -83,7 +82,7 @@ public class RestHandler {
 		final ResponseEntity<Boolean>       response;
 
 		values = new LinkedMultiValueMap<>();
-		values.add(UserCacheKey.SESSION.getKey(), cacheProvider.getUserValue(UserCacheKey.SESSION));
+		values.add(UserCacheKey.SESSION.getKey(), cacheProvider.getUserCache().getStringValue(UserCacheKey.SESSION));
 		values.add(UserCacheKey.USERNAME.getKey(), username);
 		values.add(UserCacheKey.PASSWORD.getKey(), password);
 		values.add(UserCacheKey.SALT.getKey(), salt);

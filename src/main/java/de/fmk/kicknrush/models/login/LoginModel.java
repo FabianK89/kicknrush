@@ -2,8 +2,9 @@ package de.fmk.kicknrush.models.login;
 
 import de.fmk.kicknrush.db.DatabaseHandler;
 import de.fmk.kicknrush.helper.ApplicationHelper;
-import de.fmk.kicknrush.helper.CacheProvider;
-import de.fmk.kicknrush.helper.UserCacheKey;
+import de.fmk.kicknrush.helper.cache.CacheProvider;
+import de.fmk.kicknrush.helper.cache.UserCache;
+import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.models.pojo.User;
 import de.fmk.kicknrush.rest.RestHandler;
@@ -24,7 +25,7 @@ import java.sql.SQLException;
 /**
  * Model of the login view.
  *
- * @author Fabian Kiesl
+ * @author FabianK
  */
 public class LoginModel {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LoginModel.class);
@@ -65,7 +66,7 @@ public class LoginModel {
 			}
 
 			try {
-				if (cacheProvider.getSettingsCache().isEmpty())
+				if (cacheProvider.getSettingCache().isEmpty())
 					appHelper.fillSettingsCache();
 			}
 			catch (IOException ioex) {
@@ -90,8 +91,9 @@ public class LoginModel {
 		status.set(Status.RUNNING);
 
 		loginThread = new Thread(() -> {
-			final String securePassword;
-			final User   user;
+			final String    securePassword;
+			final User      user;
+			final UserCache cache;
 
 			String salt;
 
@@ -105,11 +107,12 @@ public class LoginModel {
 				return;
 			}
 
-			user = restHandler.loginUser(username, securePassword);
+			user  = restHandler.loginUser(username, securePassword);
+			cache = cacheProvider.getUserCache();
 
 			if (user != null) {
 				if (user.getSalt() == null) {
-					cacheProvider.putUserValue(UserCacheKey.CHANGE_PWD, Boolean.TRUE.toString());
+					cache.putBooleanValue(UserCacheKey.CHANGE_PWD, true);
 				}
 				else if (salt == null) {
 					try {
@@ -120,21 +123,21 @@ public class LoginModel {
 					}
 				}
 
-				cacheProvider.putUserValue(UserCacheKey.USER_ID, user.getId());
-				cacheProvider.putUserValue(UserCacheKey.USERNAME, user.getUsername());
-				cacheProvider.putUserValue(UserCacheKey.IS_ADMIN, Boolean.valueOf(user.isAdmin()).toString());
-				cacheProvider.putUserValue(UserCacheKey.PASSWORD, user.getPassword());
-				cacheProvider.putUserValue(UserCacheKey.SALT, user.getSalt());
-				cacheProvider.putUserValue(UserCacheKey.SESSION, user.getSessionID());
+				cache.putStringValue(UserCacheKey.USER_ID, user.getId());
+				cache.putStringValue(UserCacheKey.USERNAME, user.getUsername());
+				cache.putBooleanValue(UserCacheKey.IS_ADMIN, user.isAdmin());
+				cache.putStringValue(UserCacheKey.PASSWORD, user.getPassword());
+				cache.putStringValue(UserCacheKey.SALT, user.getSalt());
+				cache.putStringValue(UserCacheKey.SESSION, user.getSessionID());
 				Platform.runLater(() -> status.set(Status.SUCCESS));
 			}
 			else {
-				cacheProvider.removeUserValue(UserCacheKey.USER_ID);
-				cacheProvider.removeUserValue(UserCacheKey.USERNAME);
-				cacheProvider.removeUserValue(UserCacheKey.PASSWORD);
-				cacheProvider.removeUserValue(UserCacheKey.IS_ADMIN);
-				cacheProvider.removeUserValue(UserCacheKey.SALT);
-				cacheProvider.removeUserValue(UserCacheKey.SESSION);
+				cache.removeValue(UserCacheKey.USER_ID);
+				cache.removeValue(UserCacheKey.USERNAME);
+				cache.removeValue(UserCacheKey.PASSWORD);
+				cache.removeValue(UserCacheKey.IS_ADMIN);
+				cache.removeValue(UserCacheKey.SALT);
+				cache.removeValue(UserCacheKey.SESSION);
 				Platform.runLater(() -> status.set(Status.FAILED));
 			}
 		});

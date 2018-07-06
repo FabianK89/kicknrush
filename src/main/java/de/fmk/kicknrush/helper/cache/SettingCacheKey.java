@@ -1,6 +1,9 @@
-package de.fmk.kicknrush.helper;
+package de.fmk.kicknrush.helper.cache;
 
-public enum SettingCacheKey {
+/**
+ * Keys that are used in the settings cache.
+ */
+public enum SettingCacheKey implements ICacheKey {
 	LOGIN_AUTOMATIC("login.automatic", Boolean.class),
 	LOGIN_WINDOW_HEIGHT("login.window.height", Double.class),
 	LOGIN_WINDOW_WIDTH("login.window.width", Double.class),
@@ -19,16 +22,23 @@ public enum SettingCacheKey {
 	}
 
 
+	@Override
 	public Class<?> getValueClass() {
 		return valueClass;
 	}
 
 
+	@Override
 	public String getKey() {
 		return key;
 	}
 
 
+	/**
+	 * @param key The key identifier.
+	 * @return the SettingCacheKey for this key identifier.
+	 * @throws java.lang.IllegalArgumentException if no key could be found.
+	 */
 	public static SettingCacheKey getByKey(String key) {
 		for (final SettingCacheKey cacheKey : values()) {
 			if (cacheKey.getKey().equals(key))

@@ -1,7 +1,7 @@
 package de.fmk.kicknrush.models.dashboard;
 
 import de.fmk.kicknrush.db.DatabaseHandler;
-import de.fmk.kicknrush.helper.CacheProvider;
+import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.rest.RestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class DashboardModel {
 		cacheProvider.clearUserCache();
 
 		try {
-			dbHandler.saveSettings(cacheProvider.getSettingsCache());
+			dbHandler.saveSettings(cacheProvider.getSettingCache());
 		}
 		catch (SQLException sqlex) {
 			LOGGER.error("Could not save settings.", sqlex);

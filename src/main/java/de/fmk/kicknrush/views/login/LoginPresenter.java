@@ -1,8 +1,8 @@
 package de.fmk.kicknrush.views.login;
 
 import de.fmk.kicknrush.helper.ApplicationHelper;
-import de.fmk.kicknrush.helper.CacheProvider;
-import de.fmk.kicknrush.helper.SettingCacheKey;
+import de.fmk.kicknrush.helper.cache.CacheProvider;
+import de.fmk.kicknrush.helper.cache.SettingCacheKey;
 import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.models.login.LoginModel;
 import de.fmk.kicknrush.views.dashboard.DashboardView;
@@ -11,10 +11,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -59,10 +57,10 @@ public class LoginPresenter implements Initializable {
 				showMessage(bundle.getString("msg.login.failed"));
 			}
 			else if (Status.SUCCESS == newStatus) {
-				cacheProvider.putSetting(SettingCacheKey.LOGIN_WINDOW_HEIGHT,
-				                         Double.toString(grid.getScene().getWindow().getHeight()));
-				cacheProvider.putSetting(SettingCacheKey.LOGIN_WINDOW_WIDTH,
-				                         Double.toString(grid.getScene().getWindow().getWidth()));
+				cacheProvider.getSettingCache().putDoubleValue(SettingCacheKey.LOGIN_WINDOW_HEIGHT,
+				                                               grid.getScene().getWindow().getHeight());
+				cacheProvider.getSettingCache().putDoubleValue(SettingCacheKey.LOGIN_WINDOW_WIDTH,
+				                                               grid.getScene().getWindow().getWidth());
 
 				appHelper.changeView(new DashboardView().getView(), true);
 			}

@@ -2,9 +2,9 @@ package de.fmk.kicknrush.views.dashboard;
 
 import de.fmk.kicknrush.app.App;
 import de.fmk.kicknrush.helper.ApplicationHelper;
-import de.fmk.kicknrush.helper.CacheProvider;
-import de.fmk.kicknrush.helper.SettingCacheKey;
-import de.fmk.kicknrush.helper.UserCacheKey;
+import de.fmk.kicknrush.helper.cache.CacheProvider;
+import de.fmk.kicknrush.helper.cache.SettingCacheKey;
+import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.dashboard.DashboardModel;
 import de.fmk.kicknrush.views.login.LoginView;
 import de.fmk.kicknrush.views.settings.SettingsView;
@@ -44,12 +44,12 @@ public class DashboardPresenter implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		initStageListener();
 
-		if (!Boolean.valueOf(cacheProvider.getUserValue(UserCacheKey.IS_ADMIN)))
+		if (!cacheProvider.getUserCache().getBooleanValue(UserCacheKey.IS_ADMIN))
 			tabPane.getTabs().remove(adminTab);
 
 		settingsTab.setContent(new SettingsView().getView());
 
-		if (cacheProvider.getBooleanUserValue(UserCacheKey.CHANGE_PWD, false))
+		if (cacheProvider.getUserCache().getBooleanValue(UserCacheKey.CHANGE_PWD))
 			tabPane.getSelectionModel().select(settingsTab);
 	}
 
@@ -64,11 +64,11 @@ public class DashboardPresenter implements Initializable {
 				event.consume();
 		});
 		primaryStage.widthProperty().addListener((observable, oldWidth, newWidth) ->
-				cacheProvider.putSetting(SettingCacheKey.WINDOW_WIDTH, newWidth.toString()));
+				cacheProvider.getSettingCache().putDoubleValue(SettingCacheKey.WINDOW_WIDTH, newWidth.doubleValue()));
 		primaryStage.heightProperty().addListener((observable, oldHeight, newHeight) ->
-				cacheProvider.putSetting(SettingCacheKey.WINDOW_HEIGHT, newHeight.toString()));
+				cacheProvider.getSettingCache().putDoubleValue(SettingCacheKey.WINDOW_HEIGHT, newHeight.doubleValue()));
 		primaryStage.maximizedProperty().addListener((observable, wasMaximized, isMaximized) ->
-				cacheProvider.putSetting(SettingCacheKey.WINDOW_MAXIMIZED, isMaximized.toString()));
+				cacheProvider.getSettingCache().putBooleanValue(SettingCacheKey.WINDOW_MAXIMIZED, isMaximized));
 	}
 
 

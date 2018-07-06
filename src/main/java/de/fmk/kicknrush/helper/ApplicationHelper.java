@@ -2,6 +2,9 @@ package de.fmk.kicknrush.helper;
 
 
 import de.fmk.kicknrush.app.App;
+import de.fmk.kicknrush.helper.cache.CacheProvider;
+import de.fmk.kicknrush.helper.cache.SettingCache;
+import de.fmk.kicknrush.helper.cache.SettingCacheKey;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
@@ -16,6 +19,8 @@ import java.util.Properties;
 
 /**
  * Helper class for the application.
+ *
+ * @author FabianK
  */
 public class ApplicationHelper {
 	@Inject @Named(CacheProvider.CACHE_ID)
@@ -28,13 +33,15 @@ public class ApplicationHelper {
 	 * @param resizable <code>true</code>, if the stage should be resizable, otherwise <code>false</code>.
 	 */
 	public void changeView(final Parent root, final boolean resizable) {
-		final Pane   pane;
-		final Stage  primaryStage;
-		final String id;
+		final Pane         pane;
+		final SettingCache cache;
+		final Stage        primaryStage;
+		final String       id;
 
 		if (!(root instanceof Pane))
 			throw new IllegalArgumentException("The parameter 'root' must be an instance of Pane.");
 
+		cache        = cacheProvider.getSettingCache();
 		primaryStage = App.getPrimaryStage();
 		pane         = (Pane) root;
 		id           = pane.getId();
@@ -42,17 +49,17 @@ public class ApplicationHelper {
 		primaryStage.setScene(new Scene(root));
 
 		if ("mainPane".equals(id)) {
-			primaryStage.setHeight(cacheProvider.getDoubleSetting(SettingCacheKey.WINDOW_HEIGHT, pane.getHeight()));
-			primaryStage.setWidth(cacheProvider.getDoubleSetting(SettingCacheKey.WINDOW_WIDTH, pane.getWidth()));
+			primaryStage.setHeight(cache.getDoubleValue(SettingCacheKey.WINDOW_HEIGHT, pane.getHeight()));
+			primaryStage.setWidth(cache.getDoubleValue(SettingCacheKey.WINDOW_WIDTH, pane.getWidth()));
 			primaryStage.setMinHeight(600.0);
 			primaryStage.setMinWidth(800.0);
-			primaryStage.setMaximized(cacheProvider.getBooleanSetting(SettingCacheKey.WINDOW_MAXIMIZED, false));
+			primaryStage.setMaximized(cache.getBooleanValue(SettingCacheKey.WINDOW_MAXIMIZED));
 		}
 		else {
-			primaryStage.setHeight(cacheProvider.getDoubleSetting(SettingCacheKey.LOGIN_WINDOW_HEIGHT, 350.0));
-			primaryStage.setWidth(cacheProvider.getDoubleSetting(SettingCacheKey.LOGIN_WINDOW_WIDTH, 350.0));
-			primaryStage.setMinHeight(cacheProvider.getDoubleSetting(SettingCacheKey.LOGIN_WINDOW_HEIGHT, 350.0));
-			primaryStage.setMinWidth(cacheProvider.getDoubleSetting(SettingCacheKey.LOGIN_WINDOW_WIDTH, 350.0));
+			primaryStage.setHeight(cache.getDoubleValue(SettingCacheKey.LOGIN_WINDOW_HEIGHT, 350.0));
+			primaryStage.setWidth(cache.getDoubleValue(SettingCacheKey.LOGIN_WINDOW_WIDTH, 350.0));
+			primaryStage.setMinHeight(cache.getDoubleValue(SettingCacheKey.LOGIN_WINDOW_HEIGHT, 350.0));
+			primaryStage.setMinWidth(cache.getDoubleValue(SettingCacheKey.LOGIN_WINDOW_WIDTH, 350.0));
 			primaryStage.setMaximized(false);
 		}
 
@@ -79,7 +86,7 @@ public class ApplicationHelper {
 
 				cacheKey = SettingCacheKey.getByKey((String) key);
 
-				cacheProvider.putSetting(cacheKey, (String) value);
+				cacheProvider.getSettingCache().parseAndPutStringValue(cacheKey, (String) value);
 			});
 		}
 	}

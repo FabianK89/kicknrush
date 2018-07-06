@@ -1,8 +1,8 @@
 package de.fmk.kicknrush.db;
 
-import de.fmk.kicknrush.helper.CacheProvider;
+import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.ResourceHelper;
-import de.fmk.kicknrush.helper.SettingCacheKey;
+import de.fmk.kicknrush.helper.cache.SettingCacheKey;
 import de.fmk.kicknrush.models.pojo.User;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -108,26 +108,26 @@ public class DatabaseHandlerTest {
 
 		dbHandler.loadSettings(cache);
 
-		assertFalse(cache.getBooleanSetting(SettingCacheKey.WINDOW_MAXIMIZED, true));
-		assertEquals(600.0, cache.getDoubleSetting(SettingCacheKey.WINDOW_WIDTH, 200.0), 0.0000001);
-		assertEquals(800.0, cache.getDoubleSetting(SettingCacheKey.WINDOW_HEIGHT, 800.0), 0.0000001);
+		assertFalse(cache.getSettingCache().getBooleanValue(SettingCacheKey.WINDOW_MAXIMIZED, true));
+		assertEquals(600.0, cache.getSettingCache().getDoubleValue(SettingCacheKey.WINDOW_WIDTH, 200.0), 0.0000001);
+		assertEquals(800.0, cache.getSettingCache().getDoubleValue(SettingCacheKey.WINDOW_HEIGHT, 800.0), 0.0000001);
 
-		cache.putSetting(SettingCacheKey.WINDOW_HEIGHT, "500.0");
-		cache.putSetting(SettingCacheKey.WINDOW_WIDTH, "500.0");
+		cache.getSettingCache().putDoubleValue(SettingCacheKey.WINDOW_HEIGHT, 500.0);
+		cache.getSettingCache().putDoubleValue(SettingCacheKey.WINDOW_WIDTH, 500.0);
 
-		dbHandler.saveSettings(cache.getSettingsCache());
+		dbHandler.saveSettings(cache.getSettingCache());
 
-		cache.clearSettingsCache();
+		cache.clearSettingCache();
 
-		assertTrue(cache.getBooleanSetting(SettingCacheKey.WINDOW_MAXIMIZED, true));
-		assertEquals(200.0, cache.getDoubleSetting(SettingCacheKey.WINDOW_WIDTH, 200.0), 0.0000001);
-		assertEquals(800.0, cache.getDoubleSetting(SettingCacheKey.WINDOW_HEIGHT, 800.0), 0.0000001);
+		assertTrue(cache.getSettingCache().getBooleanValue(SettingCacheKey.WINDOW_MAXIMIZED, true));
+		assertEquals(200.0, cache.getSettingCache().getDoubleValue(SettingCacheKey.WINDOW_WIDTH, 200.0), 0.0000001);
+		assertEquals(800.0, cache.getSettingCache().getDoubleValue(SettingCacheKey.WINDOW_HEIGHT, 800.0), 0.0000001);
 
 		dbHandler.loadSettings(cache);
 
-		assertFalse(cache.getBooleanSetting(SettingCacheKey.WINDOW_MAXIMIZED, true));
-		assertEquals(500.0, cache.getDoubleSetting(SettingCacheKey.WINDOW_WIDTH, 200.0), 0.0000001);
-		assertEquals(500.0, cache.getDoubleSetting(SettingCacheKey.WINDOW_HEIGHT, 800.0), 0.0000001);
+		assertFalse(cache.getSettingCache().getBooleanValue(SettingCacheKey.WINDOW_MAXIMIZED, true));
+		assertEquals(500.0, cache.getSettingCache().getDoubleValue(SettingCacheKey.WINDOW_WIDTH, 200.0), 0.0000001);
+		assertEquals(500.0, cache.getSettingCache().getDoubleValue(SettingCacheKey.WINDOW_HEIGHT, 800.0), 0.0000001);
 	}
 
 

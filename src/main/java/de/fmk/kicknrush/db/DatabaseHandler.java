@@ -1,7 +1,8 @@
 package de.fmk.kicknrush.db;
 
-import de.fmk.kicknrush.helper.CacheProvider;
-import de.fmk.kicknrush.helper.SettingCacheKey;
+import de.fmk.kicknrush.helper.cache.CacheProvider;
+import de.fmk.kicknrush.helper.cache.SettingCache;
+import de.fmk.kicknrush.helper.cache.SettingCacheKey;
 import de.fmk.kicknrush.models.pojo.User;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.h2.Driver;
@@ -16,7 +17,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -83,7 +83,7 @@ public class DatabaseHandler {
 
 						key = SettingCacheKey.getByKey(result.getString(DBConstants.COL_NAME_KEY));
 
-						cacheProvider.putSetting(key, result.getString(DBConstants.COL_NAME_VALUE));
+						cacheProvider.getSettingCache().parseAndPutStringValue(key, result.getString(DBConstants.COL_NAME_VALUE));
 					}
 				}
 			}
@@ -169,7 +169,7 @@ public class DatabaseHandler {
 	}
 
 
-	public void saveSettings(final Map<SettingCacheKey, String> cachedSettings) throws SQLException {
+	public void saveSettings(final SettingCache cachedSettings) throws SQLException {
 		final StringBuilder queryBuilder;
 
 		if (cachedSettings == null || cachedSettings.isEmpty())
@@ -180,10 +180,10 @@ public class DatabaseHandler {
 		            .append(" KEY(").append(DBConstants.COL_NAME_KEY).append(") VALUES(?,?);");
 
 		try (Connection connection = connectionPool.getConnection()) {
-			cachedSettings.forEach((key, value) -> {
+			cachedSettings.forEachKey(key -> {
 				try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString())) {
 					statement.setString(1, key.getKey());
-					statement.setString(2, value);
+					statement.setString(2, cachedSettings.getValueAsString(key));
 
 					if (1 != statement.executeUpdate())
 						LOGGER.warn("The setting '{}' could not have been saved.", key.getKey());
