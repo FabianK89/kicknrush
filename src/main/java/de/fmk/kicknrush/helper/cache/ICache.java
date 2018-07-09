@@ -14,6 +14,11 @@ import java.util.Map;
  */
 public interface ICache {
 	/**
+	 * Clear the cache.
+	 */
+	void clear();
+
+	/**
 	 * Get the boolean property for binding purposes.
 	 * @param key The key of the value.
 	 * @return the property for this key.

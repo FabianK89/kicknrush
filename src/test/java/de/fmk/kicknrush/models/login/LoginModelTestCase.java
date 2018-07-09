@@ -2,9 +2,11 @@ package de.fmk.kicknrush.models.login;
 
 import de.fmk.kicknrush.db.DatabaseHandler;
 import de.fmk.kicknrush.helper.cache.CacheProvider;
+import de.fmk.kicknrush.helper.cache.UserCache;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.models.pojo.User;
+import de.fmk.kicknrush.rest.RestHandler;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.embed.swing.JFXPanel;
@@ -20,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
-import java.sql.SQLException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -28,8 +29,10 @@ import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 
@@ -41,9 +44,13 @@ public class LoginModelTestCase {
 	private static final String PWD   = "pwd";
 
 	@Mock
-	private CacheProvider   m_cacheProvider;
+	private CacheProvider   cacheProvider;
 	@Mock
 	private DatabaseHandler dbHandler;
+	@Mock
+	private RestHandler     restHandler;
+	@Mock
+	private UserCache       userCache;
 
 	@InjectMocks
 	private LoginModel loginModel;
@@ -82,7 +89,9 @@ public class LoginModelTestCase {
 	public void testLogin() throws Exception {
 		final ArgumentCaptor<String> valueCapture;
 		final ObjectProperty<Status> statusProperty;
+		final User                   user;
 
+		user = new User("uuid", true, PWD, "salt", ADMIN, "sessionid");
 		valueCapture = ArgumentCaptor.forClass(String.class);
 
 		initializeJavaFX();
@@ -92,13 +101,26 @@ public class LoginModelTestCase {
 		statusProperty = new SimpleObjectProperty<>();
 		statusProperty.bind(loginModel.statusProperty());
 
+		// database handler
 		assertNotNull(dbHandler);
 
-		when(dbHandler.loginUser(null, null)).thenThrow(new SQLException());
-		when(dbHandler.loginUser("Test", "abc")).thenReturn(null);
-		when(dbHandler.loginUser(ADMIN, PWD)).thenReturn(new User("uuid", true, PWD, "salt", ADMIN, "sessionid"));
+		doNothing().when(dbHandler).updateUser(user);
 
-		doNothing().when(m_cacheProvider).putUserValue(isA(UserCacheKey.class), valueCapture.capture());
+		// cache
+		assertNotNull(cacheProvider);
+
+		when(cacheProvider.getUserCache()).thenReturn(userCache);
+
+		assertNotNull(userCache);
+
+		doNothing().when(userCache).removeValue(isA(UserCacheKey.class));
+		doNothing().when(userCache).putStringValue(eq(UserCacheKey.PASSWORD), valueCapture.capture());
+
+		// rest handler
+		assertNotNull(restHandler);
+
+		when(restHandler.loginUser(null, null)).thenReturn(null);
+		when(restHandler.loginUser(ADMIN, PWD)).thenReturn(user);
 
 		loginModel.login(null, null);
 
@@ -109,11 +131,11 @@ public class LoginModelTestCase {
 
 		await().atMost(2, TimeUnit.SECONDS).until(() -> Status.RUNNING != statusProperty.get());
 		assertEquals(Status.FAILED, loginModel.statusProperty().get());
-		assertNull(m_cacheProvider.getStringUserValue(UserCacheKey.USERNAME));
 
 		loginModel.login(ADMIN, PWD);
 
 		await().atMost(2, TimeUnit.SECONDS).until(() -> Status.RUNNING != statusProperty.get());
+		verify(dbHandler).updateUser(user);
 		assertEquals(Status.SUCCESS, loginModel.statusProperty().get());
 		assertEquals(PWD, valueCapture.getValue());
 	}

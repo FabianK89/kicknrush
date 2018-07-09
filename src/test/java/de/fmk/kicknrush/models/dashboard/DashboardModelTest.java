@@ -1,14 +1,11 @@
 package de.fmk.kicknrush.models.dashboard;
 
 import de.fmk.kicknrush.helper.cache.CacheProvider;
-import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import static org.mockito.Mockito.when;
 
 
 public class DashboardModelTest {
@@ -26,7 +23,6 @@ public class DashboardModelTest {
 
 	@Test
 	public void testHasDefaultPassword() {
-		when(m_cacheProvider.getStringUserValue(UserCacheKey.PASSWORD)).thenReturn("1234", "admin123");
 
 //		assertFalse(model.hasDefaultPassword());
 //		assertTrue(model.hasDefaultPassword());

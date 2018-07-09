@@ -6,10 +6,4 @@ package de.fmk.kicknrush.helper.cache;
  * @author FabianK
  */
 public class UserCache extends AbstractCache {
-	/**
-	 * Clear the cache.
-	 */
-	public void clear() {
-		values.clear();
-	}
 }

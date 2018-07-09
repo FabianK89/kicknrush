@@ -28,16 +28,9 @@ public abstract class AbstractCache implements ICache {
 	}
 
 
-	/**
-	 * Performs the given action for each key in the cache.
-	 * @param action The action to be performed for each key.
-	 * @throws java.lang.NullPointerException if the specified action is <code>null</code>.
-	 */
-	public void forEachKey(Consumer<ICacheKey> action) {
-		Objects.requireNonNull(action);
-
-		for (ICacheKey key : values.keySet())
-			action.accept(key);
+	@Override
+	public void clear() {
+		values.clear();
 	}
 
 
@@ -237,5 +230,18 @@ public abstract class AbstractCache implements ICache {
 	@Override
 	public boolean isEmpty() {
 		return values.isEmpty();
+	}
+
+
+	/**
+	 * Performs the given action for each key in the cache.
+	 * @param action The action to be performed for each key.
+	 * @throws java.lang.NullPointerException if the specified action is <code>null</code>.
+	 */
+	public void forEachKey(Consumer<ICacheKey> action) {
+		Objects.requireNonNull(action);
+
+		for (ICacheKey key : values.keySet())
+			action.accept(key);
 	}
 }
