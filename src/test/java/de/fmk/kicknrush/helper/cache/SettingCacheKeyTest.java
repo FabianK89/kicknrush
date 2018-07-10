@@ -1,13 +1,17 @@
 package de.fmk.kicknrush.helper.cache;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 /**
  * @author FabianK
  */
+@RunWith(JUnitPlatform.class)
 public class SettingCacheKeyTest {
 
 	@Test
@@ -22,10 +26,9 @@ public class SettingCacheKeyTest {
 	}
 
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void getByKey() {
 		assertEquals(SettingCacheKey.WINDOW_HEIGHT, SettingCacheKey.getByKey("window.height"));
-
-		SettingCacheKey.getByKey("no.valid.key");
+		assertThrows(IllegalArgumentException.class, () -> SettingCacheKey.getByKey("no.valid.key"));
 	}
 }

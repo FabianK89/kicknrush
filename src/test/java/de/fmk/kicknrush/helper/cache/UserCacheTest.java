@@ -1,31 +1,37 @@
 package de.fmk.kicknrush.helper.cache;
 
-import de.fmk.kicknrush.TestBase;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 /**
  * @author FabianK
  */
-public class UserCacheTest extends TestBase {
+@RunWith(JUnitPlatform.class)
+public class UserCacheTest {
 	private UserCache cache;
 
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		cache = new UserCache();
 	}
 
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		cache = null;
 	}
@@ -37,8 +43,8 @@ public class UserCacheTest extends TestBase {
 
 		property = new SimpleBooleanProperty();
 
-		throwsIllegalArgumentException(UserCacheKey.PASSWORD, key -> cache.getBooleanProperty(key));
-		throwsIllegalArgumentException(UserCacheKey.PASSWORD, key -> cache.putBooleanValue(key, true));
+		assertThrows(IllegalArgumentException.class, () -> cache.getBooleanProperty(UserCacheKey.PASSWORD));
+		assertThrows(IllegalArgumentException.class, () -> cache.putBooleanValue(UserCacheKey.PASSWORD, true));
 
 		assertFalse(cache.getBooleanValue(UserCacheKey.IS_ADMIN));
 		assertTrue(cache.getBooleanValue(UserCacheKey.CHANGE_PWD, true));
@@ -67,8 +73,8 @@ public class UserCacheTest extends TestBase {
 
 	@Test
 	public void testParseAndPutStringValue() {
-		throwsIllegalArgumentException(null, key -> cache.putValue(null, "Test"));
-		throwsIllegalArgumentException(UserCacheKey.IS_ADMIN, key -> cache.putValue(key, null));
+		assertThrows(IllegalArgumentException.class, () -> cache.putValue(null, "Test"));
+		assertThrows(IllegalArgumentException.class, () -> cache.putValue(UserCacheKey.IS_ADMIN, null));
 
 		cache.parseAndPutStringValue(UserCacheKey.USERNAME, "USER");
 		cache.parseAndPutStringValue(UserCacheKey.CHANGE_PWD, "true");
@@ -80,7 +86,7 @@ public class UserCacheTest extends TestBase {
 
 	@Test
 	public void testPutValue() {
-		throwsIllegalArgumentException(UserCacheKey.IS_ADMIN, key -> cache.putValue(key, "Test"));
+		assertThrows(IllegalArgumentException.class, () -> cache.putValue(UserCacheKey.IS_ADMIN, "Test"));
 
 		cache.putValue(UserCacheKey.USERNAME, "USER");
 		cache.putValue(UserCacheKey.CHANGE_PWD, true);
@@ -108,8 +114,8 @@ public class UserCacheTest extends TestBase {
 
 		property = new SimpleStringProperty();
 
-		throwsIllegalArgumentException(UserCacheKey.IS_ADMIN, key -> cache.getStringProperty(key));
-		throwsIllegalArgumentException(UserCacheKey.IS_ADMIN, key -> cache.putStringValue(key, "Test"));
+		assertThrows(IllegalArgumentException.class, () -> cache.getStringProperty(UserCacheKey.IS_ADMIN));
+		assertThrows(IllegalArgumentException.class, () -> cache.putStringValue(UserCacheKey.IS_ADMIN, "Test"));
 
 		assertNull(cache.getStringValue(UserCacheKey.USERNAME));
 		assertEquals("ABC", cache.getStringValue(UserCacheKey.PASSWORD, "ABC"));

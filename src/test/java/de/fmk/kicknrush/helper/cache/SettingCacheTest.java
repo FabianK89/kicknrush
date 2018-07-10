@@ -1,13 +1,14 @@
 package de.fmk.kicknrush.helper.cache;
 
-import de.fmk.kicknrush.TestBase;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
 
 import java.util.Map;
 
@@ -15,24 +16,26 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 /**
  * @author FabianK
  */
-public class SettingCacheTest extends TestBase {
+@RunWith(JUnitPlatform.class)
+public class SettingCacheTest {
 	private static final double DELTA = 0.0000000001;
 
 	private SettingCache cache;
 
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		cache = new SettingCache();
 	}
 
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		cache = null;
 	}
@@ -44,8 +47,8 @@ public class SettingCacheTest extends TestBase {
 
 		property = new SimpleBooleanProperty();
 
-		throwsIllegalArgumentException(SettingCacheKey.LOGIN_WINDOW_HEIGHT, key -> cache.getBooleanProperty(key));
-		throwsIllegalArgumentException(SettingCacheKey.LOGIN_WINDOW_HEIGHT, key -> cache.putBooleanValue(key, true));
+		assertThrows(IllegalArgumentException.class, () -> cache.getBooleanProperty(SettingCacheKey.LOGIN_WINDOW_HEIGHT));
+		assertThrows(IllegalArgumentException.class, () -> cache.putBooleanValue(SettingCacheKey.LOGIN_WINDOW_HEIGHT, true));
 
 		assertFalse(cache.getBooleanValue(SettingCacheKey.WINDOW_MAXIMIZED));
 		assertTrue(cache.getBooleanValue(SettingCacheKey.LOGIN_AUTOMATIC, true));
@@ -66,8 +69,8 @@ public class SettingCacheTest extends TestBase {
 
 		property = new SimpleDoubleProperty();
 
-		throwsIllegalArgumentException(SettingCacheKey.WINDOW_MAXIMIZED, key -> cache.getDoubleProperty(key));
-		throwsIllegalArgumentException(SettingCacheKey.WINDOW_MAXIMIZED, key -> cache.putDoubleValue(key, 12.5));
+		assertThrows(IllegalArgumentException.class, () -> cache.getDoubleProperty(SettingCacheKey.WINDOW_MAXIMIZED));
+		assertThrows(IllegalArgumentException.class, () -> cache.putDoubleValue(SettingCacheKey.WINDOW_MAXIMIZED, 12.5));
 
 		assertEquals(0.0, cache.getDoubleValue(SettingCacheKey.WINDOW_HEIGHT), DELTA);
 		assertEquals(555.5, cache.getDoubleValue(SettingCacheKey.WINDOW_WIDTH, 555.5), DELTA);
@@ -82,9 +85,9 @@ public class SettingCacheTest extends TestBase {
 	}
 
 
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void testForEach() {
-		cache.forEachKey(null);
+		assertThrows(NullPointerException.class, () -> cache.forEachKey(null));
 		cache.putBooleanValue(SettingCacheKey.LOGIN_AUTOMATIC, true);
 		cache.putDoubleValue(SettingCacheKey.WINDOW_HEIGHT, 666.6);
 		cache.forEachKey(key -> assertTrue(key == SettingCacheKey.LOGIN_AUTOMATIC || key == SettingCacheKey.WINDOW_HEIGHT));
@@ -102,7 +105,7 @@ public class SettingCacheTest extends TestBase {
 	}
 
 
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void testGetValues() {
 		final Map<ICacheKey, Object> map;
 
@@ -112,7 +115,7 @@ public class SettingCacheTest extends TestBase {
 
 		assertEquals(1, map.size());
 
-		map.put(SettingCacheKey.WINDOW_HEIGHT, 666.6);
+		assertThrows(UnsupportedOperationException.class, () -> map.put(SettingCacheKey.WINDOW_HEIGHT, 666.6));
 	}
 
 
@@ -128,8 +131,9 @@ public class SettingCacheTest extends TestBase {
 
 	@Test
 	public void testParseAndPutStringValue() {
-		throwsIllegalArgumentException(null, key -> cache.parseAndPutStringValue(null, "Test"));
-		throwsIllegalArgumentException(SettingCacheKey.WINDOW_MAXIMIZED, key -> cache.parseAndPutStringValue(key, null));
+		assertThrows(IllegalArgumentException.class, () -> cache.parseAndPutStringValue(null, "Test"));
+		assertThrows(IllegalArgumentException.class,
+		             () -> cache.parseAndPutStringValue(SettingCacheKey.WINDOW_MAXIMIZED, null));
 
 		cache.parseAndPutStringValue(SettingCacheKey.WINDOW_HEIGHT, "666.6");
 		cache.parseAndPutStringValue(SettingCacheKey.LOGIN_AUTOMATIC, "true");
@@ -141,7 +145,7 @@ public class SettingCacheTest extends TestBase {
 
 	@Test
 	public void testPutValue() {
-		throwsIllegalArgumentException(SettingCacheKey.WINDOW_MAXIMIZED, key -> cache.putValue(key, "Test"));
+		assertThrows(IllegalArgumentException.class, () -> cache.putValue(SettingCacheKey.WINDOW_MAXIMIZED, "Test"));
 
 		cache.putValue(SettingCacheKey.WINDOW_HEIGHT, 666.6);
 		cache.putValue(SettingCacheKey.LOGIN_AUTOMATIC, true);

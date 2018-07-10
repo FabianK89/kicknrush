@@ -2,8 +2,11 @@ package de.fmk.kicknrush.models.settings;
 
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
+import de.fmk.kicknrush.models.AbstractStatusModel;
+import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.rest.RestHandler;
 import de.fmk.kicknrush.security.PasswordUtils;
+import javafx.application.Platform;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -11,13 +14,18 @@ import javax.inject.Named;
 import java.util.List;
 
 
-public class UserSettingsModel {
+public class UserSettingsModel extends AbstractStatusModel {
 	@Inject @Named(CacheProvider.CACHE_ID)
 	private CacheProvider cacheProvider;
 	@Inject
 	private RestHandler   restHandler;
 
 	private List<String> usernames;
+
+
+	public UserSettingsModel() {
+		super();
+	}
 
 
 	@PostConstruct
@@ -59,16 +67,27 @@ public class UserSettingsModel {
 
 
 	public void save(final String username, final String newPassword) {
-		final String salt;
-		final String secretPassword;
+		final Thread savingThread;
 
-		salt           = PasswordUtils.getSalt(255);
-		secretPassword = PasswordUtils.generateSecurePassword(newPassword, salt);
+		statusProperty.set(Status.RUNNING);
 
-		cacheProvider.getUserCache().putStringValue(UserCacheKey.USERNAME, username);
-		cacheProvider.getUserCache().putStringValue(UserCacheKey.PASSWORD, secretPassword);
-		cacheProvider.getUserCache().putStringValue(UserCacheKey.SALT, salt);
+		savingThread = new Thread(() -> {
+			final String salt;
+			final String secretPassword;
 
-		restHandler.updateUser(username, secretPassword, salt);
+			salt           = PasswordUtils.getSalt(255);
+			secretPassword = PasswordUtils.generateSecurePassword(newPassword, salt);
+
+			cacheProvider.getUserCache().putStringValue(UserCacheKey.USERNAME, username);
+			cacheProvider.getUserCache().putStringValue(UserCacheKey.PASSWORD, secretPassword);
+			cacheProvider.getUserCache().putStringValue(UserCacheKey.SALT, salt);
+
+			if (restHandler.updateUser(username, secretPassword, salt)) {
+				Platform.runLater(() -> statusProperty.set(Status.SUCCESS));
+			}
+		});
+
+		savingThread.start();
+
 	}
 }

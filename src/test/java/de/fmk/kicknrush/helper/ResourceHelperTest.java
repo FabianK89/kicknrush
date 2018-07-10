@@ -1,7 +1,9 @@
 package de.fmk.kicknrush.helper;
 
 import javafx.scene.image.Image;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -15,6 +17,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 
+/**
+ * @author FabianK
+ */
+@RunWith(JUnitPlatform.class)
 public class ResourceHelperTest {
 	@Test
 	public void testGetAppIcons() {

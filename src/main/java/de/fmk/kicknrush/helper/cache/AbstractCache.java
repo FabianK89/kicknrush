@@ -148,12 +148,12 @@ public abstract class AbstractCache implements ICache {
 
 		storedValue = values.get(key);
 
-		if (key.getValueClass() == Boolean.class && storedValue instanceof Boolean)
-			return ((Boolean) storedValue).toString();
-		else if (key.getValueClass() == Double.class && storedValue instanceof Double)
-			return Double.toString((Double) storedValue);
-		else if (key.getValueClass() == String.class && storedValue instanceof String)
-			return (String) storedValue;
+		if (key.getValueClass() == Boolean.class && storedValue instanceof BooleanProperty)
+			return ((BooleanProperty) storedValue).getValue().toString();
+		else if (key.getValueClass() == Double.class && storedValue instanceof DoubleProperty)
+			return Double.toString(((DoubleProperty) storedValue).doubleValue());
+		else if (key.getValueClass() == String.class && storedValue instanceof StringProperty)
+			return ((StringProperty) storedValue).get();
 
 		return null;
 	}

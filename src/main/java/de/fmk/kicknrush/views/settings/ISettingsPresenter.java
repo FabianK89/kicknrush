@@ -1,4 +1,7 @@
 package de.fmk.kicknrush.views.settings;
 
-public interface ISettingsPresenter {
+import de.fmk.kicknrush.views.INotificationPresenter;
+
+
+public interface ISettingsPresenter extends INotificationPresenter {
 }

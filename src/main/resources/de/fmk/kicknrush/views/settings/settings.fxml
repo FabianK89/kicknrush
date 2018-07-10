@@ -8,8 +8,9 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<GridPane hgap="10.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.fmk.kicknrush.views.settings.SettingsPresenter">
+<GridPane hgap="10.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.fmk.kicknrush.views.settings.SettingsPresenter">
    <rowConstraints>
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
       <RowConstraints vgrow="ALWAYS" />
@@ -21,6 +22,7 @@
    <children>
       <Label text="%settings" GridPane.columnSpan="2147483647" />
       <Label fx:id="userSettingsLabel" text="%title.user" GridPane.rowIndex="1" />
+      <Label fx:id="appSettingsLabel" text="%title.app" GridPane.rowIndex="2" />
       <ScrollPane fitToWidth="true" hbarPolicy="NEVER" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.rowSpan="2147483647">
          <content>
             <VBox fx:id="settingsBox" spacing="10.0" />

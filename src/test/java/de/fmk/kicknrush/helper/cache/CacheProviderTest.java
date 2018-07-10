@@ -1,9 +1,10 @@
 package de.fmk.kicknrush.helper.cache;
 
-import de.fmk.kicknrush.TestBase;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.platform.runner.JUnitPlatform;
+import org.junit.runner.RunWith;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -11,17 +12,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author FabianK
  */
-public class CacheProviderTest extends TestBase {
+@RunWith(JUnitPlatform.class)
+public class CacheProviderTest {
 	private CacheProvider cacheProvider;
 
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		cacheProvider = new CacheProvider();
 	}
 
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		cacheProvider = null;
 	}
