@@ -29,13 +29,27 @@ public class AdministrationModel extends AbstractStatusModel {
 	}
 
 
-	public void createUser() {
+	public User createUser(final String name) {
 		final User user = new User();
 
 		user.setId(UUID.randomUUID().toString());
-		user.setUsername("Neuer Benutzer");
+		user.setUsername(name);
 
 		editedUser = user;
+		users.add(user);
+
+		return editedUser;
+	}
+
+
+	public User getEditedUser() {
+		return editedUser;
+	}
+
+
+	public void removeUser(final User user) {
+		editedUser = null;
+		users.remove(user);
 	}
 
 
