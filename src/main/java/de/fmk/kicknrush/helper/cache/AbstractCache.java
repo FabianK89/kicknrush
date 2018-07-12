@@ -2,8 +2,10 @@ package de.fmk.kicknrush.helper.cache;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -23,7 +25,7 @@ public abstract class AbstractCache implements ICache {
 	protected final Map<ICacheKey, Object> values;
 
 
-	public AbstractCache() {
+	AbstractCache() {
 		values = new HashMap<>();
 	}
 
@@ -36,21 +38,7 @@ public abstract class AbstractCache implements ICache {
 
 	@Override
 	public BooleanProperty getBooleanProperty(ICacheKey key) {
-		final BooleanProperty property;
-		final Object          storedValue;
-
-		if (key == null || key.getValueClass() != Boolean.class)
-			throw new IllegalArgumentException("No boolean value found for the key '" + key + "'.");
-
-		storedValue = values.get(key);
-
-		if (storedValue instanceof BooleanProperty)
-			return (BooleanProperty) storedValue;
-
-		property = new SimpleBooleanProperty();
-		values.put(key, property);
-
-		return property;
+		return getProperty(BooleanProperty.class, SimpleBooleanProperty.class, Boolean.class, key);
 	}
 
 
@@ -71,21 +59,7 @@ public abstract class AbstractCache implements ICache {
 
 	@Override
 	public DoubleProperty getDoubleProperty(ICacheKey key) {
-		final DoubleProperty property;
-		final Object          storedValue;
-
-		if (key == null || key.getValueClass() != Double.class)
-			throw new IllegalArgumentException("No double value found for the key '" + key + "'.");
-
-		storedValue = values.get(key);
-
-		if (storedValue instanceof DoubleProperty)
-			return (DoubleProperty) storedValue;
-
-		property = new SimpleDoubleProperty();
-		values.put(key, property);
-
-		return property;
+		return getProperty(DoubleProperty.class, SimpleDoubleProperty.class, Double.class, key);
 	}
 
 
@@ -105,22 +79,29 @@ public abstract class AbstractCache implements ICache {
 
 
 	@Override
+	public IntegerProperty getIntegerProperty(ICacheKey key) {
+		return getProperty(IntegerProperty.class, SimpleIntegerProperty.class, Integer.class, key);
+	}
+
+
+	@Override
+	public int getIntegerValue(ICacheKey key) {
+		return getIntegerValue(key, 0);
+	}
+
+
+	@Override
+	public int getIntegerValue(ICacheKey key, int fallback) {
+		if (key == null || key.getValueClass() != Integer.class || values.get(key) == null)
+			return fallback;
+
+		return getIntegerProperty(key).get();
+	}
+
+
+	@Override
 	public StringProperty getStringProperty(ICacheKey key) {
-		final StringProperty property;
-		final Object         storedValue;
-
-		if (key == null || key.getValueClass() != String.class)
-			throw new IllegalArgumentException("No string value found for the key '" + key + "'.");
-
-		storedValue = values.get(key);
-
-		if (storedValue instanceof StringProperty)
-			return (StringProperty) storedValue;
-
-		property = new SimpleStringProperty();
-		values.put(key, property);
-
-		return property;
+		return getProperty(StringProperty.class, SimpleStringProperty.class, String.class, key);
 	}
 
 
@@ -152,6 +133,8 @@ public abstract class AbstractCache implements ICache {
 			return ((BooleanProperty) storedValue).getValue().toString();
 		else if (key.getValueClass() == Double.class && storedValue instanceof DoubleProperty)
 			return Double.toString(((DoubleProperty) storedValue).doubleValue());
+		else if (key.getValueClass() == Integer.class && storedValue instanceof IntegerProperty)
+			return Integer.toString(((IntegerProperty) storedValue).intValue());
 		else if (key.getValueClass() == String.class && storedValue instanceof StringProperty)
 			return ((StringProperty) storedValue).get();
 
@@ -166,36 +149,39 @@ public abstract class AbstractCache implements ICache {
 
 		if (key.getValueClass() == Boolean.class)
 			putBooleanValue(key, Boolean.parseBoolean(value));
-		if (key.getValueClass() == Double.class)
+		else if (key.getValueClass() == Double.class)
 			putDoubleValue(key, Double.parseDouble(value));
-		if (key.getValueClass() == String.class)
+		else if (key.getValueClass() == Integer.class)
+			putIntegerValue(key, Integer.parseInt(value));
+		else if (key.getValueClass() == String.class)
 			putStringValue(key, value);
 	}
 
 
 	@Override
 	public void putBooleanValue(ICacheKey key, boolean value) {
-		if (key == null || key.getValueClass() != Boolean.class)
-			throw new IllegalArgumentException("The key '" + key + "' does not store a boolean value.");
-
+		checkValue(key, Boolean.class);
 		getBooleanProperty(key).setValue(value);
 	}
 
 
 	@Override
 	public void putDoubleValue(ICacheKey key, double value) {
-		if (key == null || key.getValueClass() != Double.class)
-			throw new IllegalArgumentException("The key '" + key + "' does not store a double value.");
-
+		checkValue(key, Double.class);
 		getDoubleProperty(key).setValue(value);
 	}
 
 
 	@Override
-	public void putStringValue(ICacheKey key, String value) {
-		if (key == null || key.getValueClass() != String.class)
-			throw new IllegalArgumentException("The key '" + key + "' does not store a string value.");
+	public void putIntegerValue(ICacheKey key, int value) {
+		checkValue(key, Integer.class);
+		getIntegerProperty(key).setValue(value);
+	}
 
+
+	@Override
+	public void putStringValue(ICacheKey key, String value) {
+		checkValue(key, String.class);
 		getStringProperty(key).setValue(value);
 	}
 
@@ -209,6 +195,8 @@ public abstract class AbstractCache implements ICache {
 			getBooleanProperty(key).setValue((Boolean) value);
 		else if (key.getValueClass() == Double.class)
 			getDoubleProperty(key).setValue((Double) value);
+		else if (key.getValueClass() == Integer.class)
+			getIntegerProperty(key).setValue((Integer) value);
 		else if (key.getValueClass() == String.class)
 			getStringProperty(key).setValue((String) value);
 	}
@@ -243,5 +231,38 @@ public abstract class AbstractCache implements ICache {
 
 		for (ICacheKey key : values.keySet())
 			action.accept(key);
+	}
+
+
+	private <T> void checkValue(ICacheKey key, Class<T> valueClass) {
+		if (key == null || key.getValueClass() != valueClass)
+			throw new IllegalArgumentException("The key '" + key + "' does not store a " + valueClass.getName() + " value.");
+	}
+
+
+	private <R extends T, T, X> T getProperty(final Class<T>  propertyClass,
+	                                          final Class<R>  simplePropertyClass,
+	                                          final Class<X>  typeClass,
+	                                          final ICacheKey key) {
+		final T      property;
+		final Object storedValue;
+
+		if (key == null || key.getValueClass() != typeClass)
+			throw new IllegalArgumentException("No integer value found for the key '" + key + "'.");
+
+		storedValue = values.get(key);
+
+		if (propertyClass.isInstance(storedValue))
+			return (T) storedValue;
+
+		try {
+			property = simplePropertyClass.newInstance();
+			values.put(key, property);
+
+			return property;
+		}
+		catch (InstantiationException | IllegalAccessException ex) {
+			throw new RuntimeException(ex.getMessage(), ex);
+		}
 	}
 }

@@ -78,6 +78,23 @@ public class SettingsPresenter implements Initializable, INotificationPresenter 
 
 
 	@Override
+	public void enter() {
+		settingsViewMap.forEach((label, presenter) -> presenter.enter());
+	}
+
+
+	@Override
+	public boolean leave() {
+		for (ISettingsPresenter presenter : settingsViewMap.values()) {
+			if (!presenter.leave())
+				return false;
+		}
+
+		return true;
+	}
+
+
+	@Override
 	public void setNotificationPane(NotificationPane pane) {
 		notificationPaneProperty.set(pane);
 	}

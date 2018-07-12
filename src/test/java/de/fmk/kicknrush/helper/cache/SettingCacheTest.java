@@ -2,8 +2,10 @@ package de.fmk.kicknrush.helper.cache;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,26 +25,26 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * @author FabianK
  */
 @RunWith(JUnitPlatform.class)
-public class SettingCacheTest {
+class SettingCacheTest {
 	private static final double DELTA = 0.0000000001;
 
 	private SettingCache cache;
 
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		cache = new SettingCache();
 	}
 
 
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		cache = null;
 	}
 
 
 	@Test
-	public void testBooleanValues() {
+	void testBooleanValues() {
 		final BooleanProperty property;
 
 		property = new SimpleBooleanProperty();
@@ -64,7 +66,7 @@ public class SettingCacheTest {
 
 
 	@Test
-	public void testDoubleValues() {
+	void testDoubleValues() {
 		final DoubleProperty property;
 
 		property = new SimpleDoubleProperty();
@@ -86,7 +88,7 @@ public class SettingCacheTest {
 
 
 	@Test
-	public void testForEach() {
+	void testForEach() {
 		assertThrows(NullPointerException.class, () -> cache.forEachKey(null));
 		cache.putBooleanValue(SettingCacheKey.LOGIN_AUTOMATIC, true);
 		cache.putDoubleValue(SettingCacheKey.WINDOW_HEIGHT, 666.6);
@@ -95,18 +97,20 @@ public class SettingCacheTest {
 
 
 	@Test
-	public void testGetValueAsString() {
+	void testGetValueAsString() {
 		cache.putBooleanValue(SettingCacheKey.LOGIN_AUTOMATIC, true);
 		cache.putDoubleValue(SettingCacheKey.WINDOW_HEIGHT, 666.6);
+		cache.putIntegerValue(SettingCacheKey.NOTIFICATION_HIDE_AFTER_SECONDS, 12);
 
 		assertNull(cache.getValueAsString(null));
 		assertEquals(Boolean.TRUE.toString(), cache.getValueAsString(SettingCacheKey.LOGIN_AUTOMATIC));
 		assertEquals(Double.toString(666.6), cache.getValueAsString(SettingCacheKey.WINDOW_HEIGHT));
+		assertEquals(Integer.toString(12), cache.getValueAsString(SettingCacheKey.NOTIFICATION_HIDE_AFTER_SECONDS));
 	}
 
 
 	@Test
-	public void testGetValues() {
+	void testGetValues() {
 		final Map<ICacheKey, Object> map;
 
 		cache.putBooleanValue(SettingCacheKey.LOGIN_AUTOMATIC, true);
@@ -120,7 +124,29 @@ public class SettingCacheTest {
 
 
 	@Test
-	public void testIsEmpty() {
+	void testIntegerValues() {
+		final IntegerProperty property;
+
+		property = new SimpleIntegerProperty();
+
+		assertThrows(IllegalArgumentException.class, () -> cache.getIntegerProperty(SettingCacheKey.WINDOW_MAXIMIZED));
+		assertThrows(IllegalArgumentException.class, () -> cache.putIntegerValue(SettingCacheKey.WINDOW_MAXIMIZED, 12));
+
+		assertEquals(1, cache.getIntegerValue(SettingCacheKey.NOTIFICATION_HIDE_AFTER_SECONDS, 1));
+
+		property.bindBidirectional(cache.getIntegerProperty(SettingCacheKey.NOTIFICATION_HIDE_AFTER_SECONDS));
+		property.set(9);
+
+		assertEquals(9, cache.getIntegerProperty(SettingCacheKey.NOTIFICATION_HIDE_AFTER_SECONDS).get());
+
+		cache.putIntegerValue(SettingCacheKey.NOTIFICATION_HIDE_AFTER_SECONDS, 11);
+
+		assertEquals(11, cache.getIntegerValue(SettingCacheKey.NOTIFICATION_HIDE_AFTER_SECONDS));
+	}
+
+
+	@Test
+	void testIsEmpty() {
 		assertTrue(cache.isEmpty());
 
 		cache.putBooleanValue(SettingCacheKey.LOGIN_AUTOMATIC, true);
@@ -130,27 +156,31 @@ public class SettingCacheTest {
 
 
 	@Test
-	public void testParseAndPutStringValue() {
+	void testParseAndPutStringValue() {
 		assertThrows(IllegalArgumentException.class, () -> cache.parseAndPutStringValue(null, "Test"));
 		assertThrows(IllegalArgumentException.class,
 		             () -> cache.parseAndPutStringValue(SettingCacheKey.WINDOW_MAXIMIZED, null));
 
 		cache.parseAndPutStringValue(SettingCacheKey.WINDOW_HEIGHT, "666.6");
 		cache.parseAndPutStringValue(SettingCacheKey.LOGIN_AUTOMATIC, "true");
+		cache.parseAndPutStringValue(SettingCacheKey.NOTIFICATION_HIDE_AFTER_SECONDS, "12");
 
 		assertEquals(666.6, cache.getDoubleValue(SettingCacheKey.WINDOW_HEIGHT), DELTA);
 		assertTrue(cache.getBooleanValue(SettingCacheKey.LOGIN_AUTOMATIC));
+		assertEquals(12, cache.getIntegerValue(SettingCacheKey.NOTIFICATION_HIDE_AFTER_SECONDS));
 	}
 
 
 	@Test
-	public void testPutValue() {
+	void testPutValue() {
 		assertThrows(IllegalArgumentException.class, () -> cache.putValue(SettingCacheKey.WINDOW_MAXIMIZED, "Test"));
 
 		cache.putValue(SettingCacheKey.WINDOW_HEIGHT, 666.6);
 		cache.putValue(SettingCacheKey.LOGIN_AUTOMATIC, true);
+		cache.putValue(SettingCacheKey.NOTIFICATION_HIDE_AFTER_SECONDS, 12);
 
 		assertEquals(666.6, cache.getDoubleValue(SettingCacheKey.WINDOW_HEIGHT), DELTA);
 		assertTrue(cache.getBooleanValue(SettingCacheKey.LOGIN_AUTOMATIC));
+		assertEquals(12, cache.getIntegerValue(SettingCacheKey.NOTIFICATION_HIDE_AFTER_SECONDS));
 	}
 }

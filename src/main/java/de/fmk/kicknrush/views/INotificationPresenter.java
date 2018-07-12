@@ -8,7 +8,7 @@ import org.controlsfx.control.NotificationPane;
  *
  * @author FabianK
  */
-public interface INotificationPresenter {
+public interface INotificationPresenter extends IPaneHandler {
 	/**
 	 * Set the notification pane.
 	 * @param pane The notification pane.

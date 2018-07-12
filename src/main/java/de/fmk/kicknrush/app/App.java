@@ -68,12 +68,12 @@ public class App extends Application {
 	}
 
 
-	public static Stage getPrimaryStage() {
+	public static synchronized Stage getPrimaryStage() {
 		return stage;
 	}
 
 
-	public synchronized static void setPrimaryStage(Stage primaryStage) {
+	private static synchronized void setPrimaryStage(Stage primaryStage) {
 		stage = primaryStage;
 	}
 }

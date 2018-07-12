@@ -2,6 +2,7 @@ package de.fmk.kicknrush.helper.cache;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.StringProperty;
 
 import java.util.Map;
@@ -65,6 +66,29 @@ public interface ICache {
 	double getDoubleValue(ICacheKey key);
 
 	/**
+	 * Get the integer property for binding purposes.
+	 * @param key The key of the value.
+	 * @return the property for this key.
+	 * @throws java.lang.IllegalArgumentException if the stored value is not a integer value.
+	 */
+	IntegerProperty getIntegerProperty(ICacheKey key);
+
+	/**
+	 * Read a integer value from the cache.
+	 * @param key The key of the value.
+	 * @return the stored value or <code>0</code>.
+	 */
+	int getIntegerValue(ICacheKey key);
+
+	/**
+	 * Read a integer value from the cache.
+	 * @param key The key of the value.
+	 * @param fallback Fallback value if no value could be found for the key.
+	 * @return the stored value or the fallback value.
+	 */
+	int getIntegerValue(ICacheKey key, int fallback);
+
+	/**
 	 * Get the string property for binding purposes.
 	 * @param key The key of the value.
 	 * @return the property for this key.
@@ -118,6 +142,14 @@ public interface ICache {
 	 * @throws java.lang.IllegalArgumentException if the key does not store a double value.
 	 */
 	void putDoubleValue(ICacheKey key, double value);
+
+	/**
+	 * Stores a integer value in the cache.
+	 * @param key The key of the value.
+	 * @param value The value to store.
+	 * @throws java.lang.IllegalArgumentException if the key does not store a integer value.
+	 */
+	void putIntegerValue(ICacheKey key, int value);
 
 	/**
 	 * Stores a string value in the cache.

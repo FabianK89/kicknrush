@@ -1,5 +1,6 @@
 package de.fmk.kicknrush.views.settings.usersettings;
 
+import de.fmk.kicknrush.helper.UTF8Resources;
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.Status;
@@ -17,7 +18,6 @@ import org.controlsfx.control.NotificationPane;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ResourceBundle;
 
 public class UserSettingsPresenter implements ISettingsPresenter, Initializable {
@@ -43,7 +43,7 @@ public class UserSettingsPresenter implements ISettingsPresenter, Initializable 
 	private UserSettingsModel model;
 
 	private NotificationPane notificationPane;
-	private ResourceBundle   resources;
+	private UTF8Resources    resources;
 
 
 	public UserSettingsPresenter() {
@@ -55,8 +55,20 @@ public class UserSettingsPresenter implements ISettingsPresenter, Initializable 
 
 
 	@Override
+	public void enter() {
+
+	}
+
+
+	@Override
+	public boolean leave() {
+		return false;
+	}
+
+
+	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		this.resources = resources;
+		this.resources = new UTF8Resources(resources);
 
 		saveButton.disableProperty().bind(uniqueUsername.not().or(equalNewPwd.not()).or(newPassword.not()));
 
@@ -97,18 +109,11 @@ public class UserSettingsPresenter implements ISettingsPresenter, Initializable 
 		username = usernameInput.getText();
 
 		if (!model.isOldPasswordCorrect(oldPasswordInput.getText())) {
-			notificationPane.show(convert(resources.getString("msg.wrong.old.password")));
+			notificationPane.show(resources.get("msg.wrong.old.password"));
 			return;
 		}
 
 		model.save(username, password);
-	}
-
-
-	public String convert(final String text) {
-		final byte[] bytes = text.getBytes(Charset.forName("ISO-8859-1"));
-
-		return new String(bytes, Charset.forName("UTF-8"));
 	}
 
 

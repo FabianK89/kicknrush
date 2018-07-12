@@ -9,9 +9,12 @@ import de.fmk.kicknrush.helper.cache.UserCache;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.dashboard.DashboardModel;
 import de.fmk.kicknrush.views.INotificationPresenter;
+import de.fmk.kicknrush.views.administration.AdministrationView;
 import de.fmk.kicknrush.views.login.LoginView;
 import de.fmk.kicknrush.views.settings.SettingsView;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
@@ -24,9 +27,14 @@ import org.controlsfx.control.NotificationPane;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 
+/**
+ * @author FabianK
+ */
 public class DashboardPresenter implements Initializable {
 	@FXML
 	private BorderPane mainPane;
@@ -43,6 +51,15 @@ public class DashboardPresenter implements Initializable {
 	private CacheProvider     cacheProvider;
 	@Inject
 	private DashboardModel    model;
+
+	private final BooleanProperty                  disableTabListener;
+	private final Map<Tab, INotificationPresenter> tabMap;
+
+
+	public DashboardPresenter() {
+		disableTabListener = new SimpleBooleanProperty(false);
+		tabMap             = new HashMap<>();
+	}
 
 
 	@Override
@@ -61,8 +78,27 @@ public class DashboardPresenter implements Initializable {
 
 		if (!cache.getBooleanValue(UserCacheKey.IS_ADMIN))
 			tabPane.getTabs().remove(adminTab);
+		else
+			createTabView(adminTab, new AdministrationView());
 
-		_createTabView(settingsTab, new SettingsView());
+		createTabView(settingsTab, new SettingsView());
+
+		tabPane.getSelectionModel().selectedItemProperty().addListener((observable, wasSelected, isSelected) -> {
+			if (disableTabListener.get()) {
+				disableTabListener.set(false);
+				return;
+			}
+
+			if (wasSelected != null) {
+				if (!tabMap.get(wasSelected).leave()) {
+					tabPane.getSelectionModel().select(wasSelected);
+					disableTabListener.set(true);
+					return;
+				}
+			}
+
+			tabMap.get(isSelected).enter();
+		});
 
 		if (cache.getBooleanValue(UserCacheKey.CHANGE_PWD))
 			tabPane.getSelectionModel().select(settingsTab);
@@ -73,7 +109,7 @@ public class DashboardPresenter implements Initializable {
 	}
 
 
-	private void _createTabView(final Tab tab, final FXMLView view) {
+	private void createTabView(final Tab tab, final FXMLView view) {
 		final INotificationPresenter presenter;
 		final NotificationPane       notificationPane;
 		final Parent                 pane;
@@ -90,12 +126,14 @@ public class DashboardPresenter implements Initializable {
 			return;
 		}
 
+		tabMap.put(tab, presenter);
+
 		notificationPane = new NotificationPane(pane);
 		notificationPane.setShowFromTop(false);
 		notificationPane.setCloseButtonVisible(false);
 		notificationPane.setOnShown(event -> {
 			if (notificationPane.isShowing())
-				hideNotificationAfter5Seconds(notificationPane);
+				hideNotification(notificationPane);
 		});
 
 		presenter.setNotificationPane(notificationPane);
@@ -103,10 +141,14 @@ public class DashboardPresenter implements Initializable {
 	}
 
 
-	private void hideNotificationAfter5Seconds(final NotificationPane pane) {
+	private void hideNotification(final NotificationPane pane) {
 		new Thread(() -> {
+			final int sleepTime;
+
+			sleepTime = cacheProvider.getSettingCache().getIntegerValue(SettingCacheKey.NOTIFICATION_HIDE_AFTER_SECONDS, 5);
+
 			try {
-				Thread.sleep(5000);
+				Thread.sleep(sleepTime * 1000L);
 			}
 			catch (InterruptedException iex) {
 				Thread.currentThread().interrupt();
