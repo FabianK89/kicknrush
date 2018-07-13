@@ -14,18 +14,19 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 /**
  * @author FabianK
  */
 @RunWith(JUnitPlatform.class)
-public class UTF8ResourcesTest {
+class UTF8ResourcesTest {
 	private ResourceBundle bundle;
 
 
 	@BeforeEach
-	public void setUp() throws Exception {
+	void setUp() throws Exception {
 		final ClassLoader loader;
 		final Path        path;
 		final URL[]       urls;
@@ -38,16 +39,20 @@ public class UTF8ResourcesTest {
 
 
 	@AfterEach
-	public void tearDown() {
+	void tearDown() {
 		bundle = null;
 	}
 
 
 	@Test
-	public void test() {
+	void test() {
 		final UTF8Resources utf8 = new UTF8Resources(bundle);
 
 		assertEquals("Äther ist heiß", utf8.get("test"));
 		assertEquals("Ã\u0084ther ist heiÃ\u009F", bundle.getString("test"));
+
+		assertNull(utf8.get(null, "test"));
+		assertEquals("heißer Äther: würzig, scharf", utf8.get("test.with.arguments", "würzig", "scharf"));
+		assertEquals("heißer Äther: %s, %s", utf8.get("test.with.arguments", new String[] {}));
 	}
 }
