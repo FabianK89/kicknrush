@@ -15,6 +15,7 @@
    <rowConstraints>
       <RowConstraints />
       <RowConstraints vgrow="NEVER" />
+      <RowConstraints vgrow="NEVER" />
       <RowConstraints vgrow="ALWAYS" />
    </rowConstraints>
    <columnConstraints>
@@ -32,8 +33,9 @@
             <Button fx:id="deleteButton" mnemonicParsing="false" onAction="#onDelete" text="%btn.delete" />
          </children>
       </HBox>
-      <ListView fx:id="userList" GridPane.rowIndex="2" />
-      <GridPane fx:id="detailPane" GridPane.columnIndex="1" GridPane.rowIndex="2">
+      <TextField fx:id="searchInput" promptText="%search" GridPane.rowIndex="2" />
+      <ListView fx:id="userList" GridPane.rowIndex="3" />
+      <GridPane fx:id="detailPane" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.rowSpan="2147483647">
         <columnConstraints>
           <ColumnConstraints hgrow="ALWAYS" />
         </columnConstraints>

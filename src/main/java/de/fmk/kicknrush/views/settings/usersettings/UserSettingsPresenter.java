@@ -62,7 +62,7 @@ public class UserSettingsPresenter implements ISettingsPresenter, Initializable 
 
 	@Override
 	public boolean leave() {
-		return false;
+		return true;
 	}
 
 

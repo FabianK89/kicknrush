@@ -76,10 +76,13 @@ public class DashboardPresenter implements Initializable {
 		cache.getBooleanProperty(UserCacheKey.CHANGE_PWD).addListener((obs, oldValue, newValue) ->
 				tabPane.getTabs().stream().filter(tab -> tab != settingsTab).forEach(tab -> tab.setDisable(newValue)));
 
-		if (!cache.getBooleanValue(UserCacheKey.IS_ADMIN))
+		if (!cache.getBooleanValue(UserCacheKey.IS_ADMIN)) {
 			tabPane.getTabs().remove(adminTab);
-		else
+		}
+		else {
 			createTabView(adminTab, new AdministrationView());
+			tabMap.get(adminTab).enter();
+		}
 
 		createTabView(settingsTab, new SettingsView());
 
@@ -89,12 +92,10 @@ public class DashboardPresenter implements Initializable {
 				return;
 			}
 
-			if (wasSelected != null) {
-				if (!tabMap.get(wasSelected).leave()) {
-					tabPane.getSelectionModel().select(wasSelected);
+			if (wasSelected != null && !tabMap.get(wasSelected).leave()) {
 					disableTabListener.set(true);
+					Platform.runLater(() -> tabPane.getSelectionModel().select(wasSelected));
 					return;
-				}
 			}
 
 			tabMap.get(isSelected).enter();

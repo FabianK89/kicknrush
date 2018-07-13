@@ -7,15 +7,23 @@ import de.fmk.kicknrush.views.settings.ISettingsPresenter;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import org.controlsfx.control.NotificationPane;
 
 import javax.inject.Inject;
 import java.net.URL;
+import java.util.Comparator;
 import java.util.ResourceBundle;
+
 
 public class AdministrationPresenter implements ISettingsPresenter, Initializable {
 	private final BooleanProperty createdNewUser;
@@ -39,12 +47,15 @@ public class AdministrationPresenter implements ISettingsPresenter, Initializabl
 	private ListView<User> userList;
 	@FXML
 	private TextField      nameInput;
+	@FXML
+	private TextField      searchInput;
 
 	@Inject
 	private AdministrationModel model;
 
-	private NotificationPane notificationPane;
-	private UTF8Resources    resources;
+	private FilteredList<User> filteredList;
+	private NotificationPane   notificationPane;
+	private UTF8Resources      resources;
 
 
 	public AdministrationPresenter() {
@@ -53,68 +64,10 @@ public class AdministrationPresenter implements ISettingsPresenter, Initializabl
 	}
 
 
-	@FXML
-	private void onCancel() {
-		if (createdNewUser.get()) {
-			model.removeUser(model.getEditedUser());
-			createdNewUser.set(false);
-		}
-
-		userList.getSelectionModel().clearSelection();
-	}
-
-
-	@FXML
-	private void onCreate() {
-		final User user;
-
-		user = model.createUser(resources.get("user.new"));
-
-		fillDetails(user);
-		createdNewUser.set(true);
-		disableSelectionListener.set(true);
-		userList.refresh();
-		userList.getSelectionModel().select(user);
-	}
-
-
-	private void fillDetails(final User user) {
-		nameInput.setText(user.getUsername());
-		adminCheck.setSelected(user.isAdmin());
-
-		nameInput.setDisable(false);
-	}
-
-
-	@FXML
-	private void onDelete() {
-
-	}
-
-
-	@FXML
-	private void onSave() {
-		final User user;
-
-		if (resources.get("user.new").equals(nameInput.getText()) ||
-		    nameInput.getText() == null || nameInput.getText().isEmpty()) {
-			notificationPane.show("Gib einen anderen Benutzernamen ein.");
-			return;
-		}
-
-		user = model.getEditedUser();
-		user.setUsername(nameInput.getText());
-		user.setAdmin(adminCheck.isSelected());
-
-		createdNewUser.set(false);
-		nameInput.setDisable(true);
-		userList.refresh();
-	}
-
-
 	@Override
 	public void enter() {
-
+		model.load();
+		userList.refresh();
 	}
 
 
@@ -136,6 +89,14 @@ public class AdministrationPresenter implements ISettingsPresenter, Initializabl
 	}
 
 
+	private void fillDetails(final User user) {
+		nameInput.setText(user.getUsername());
+		adminCheck.setSelected(user.isAdmin());
+
+		nameInput.setDisable(!createdNewUser.get());
+	}
+
+
 	private void initButtons() {
 		cancelButton.disableProperty().bind(detailPane.visibleProperty().not());
 
@@ -149,17 +110,20 @@ public class AdministrationPresenter implements ISettingsPresenter, Initializabl
 
 
 	private void initList() {
-		userList.setCellFactory(list -> new ListCell<User>() {
-			@Override
-			protected void updateItem(User item, boolean empty) {
-				super.updateItem(item, empty);
+		filteredList = new FilteredList<>(model.getUsers(), user -> true);
 
-				if (item == null || empty)
-					setText(null);
-				else
-					setText(item.getUsername());
-			}
+		searchInput.setOnKeyPressed(event -> {
+			if (event.getCode() == KeyCode.ESCAPE)
+				searchInput.setText(null);
 		});
+		searchInput.textProperty().addListener((observable, oldValue, newValue) -> {
+			if (newValue == null || newValue.isEmpty())
+				filteredList.setPredicate(user -> true);
+			else
+				filteredList.setPredicate(user -> user.getUsername().toLowerCase().contains(newValue.toLowerCase()));
+		});
+
+		userList.setCellFactory(list -> new UserCell());
 		userList.getSelectionModel().selectedItemProperty().addListener((observable, wasSelected, isSelected) -> {
 			if (isSelected == null)
 				return;
@@ -169,8 +133,8 @@ public class AdministrationPresenter implements ISettingsPresenter, Initializabl
 				return;
 			}
 
-			if (resources.get("user.new").equals(nameInput.getText()) ||
-			    nameInput.getText() == null || nameInput.getText().isEmpty()) {
+			if (wasSelected != null && (resources.get("user.new").equals(nameInput.getText()) ||
+			    nameInput.getText() == null || nameInput.getText().isEmpty())) {
 				disableSelectionListener.set(true);
 				Platform.runLater(() -> userList.getSelectionModel().select(wasSelected));
 				return;
@@ -179,12 +143,92 @@ public class AdministrationPresenter implements ISettingsPresenter, Initializabl
 			fillDetails(isSelected);
 		});
 
-		userList.setItems(model.getUsers());
+		userList.setItems(filteredList.sorted(Comparator.comparing(User::getUsername)));
+	}
+
+
+	@FXML
+	private void onCancel() {
+		if (createdNewUser.get()) {
+			nameInput.setText(" ");
+			model.removeUser(userList.getSelectionModel().getSelectedItem());
+			createdNewUser.set(false);
+		}
+
+		userList.getSelectionModel().clearSelection();
+	}
+
+
+	@FXML
+	private void onCreate() {
+		final User user;
+
+		user = model.createUser(resources.get("user.new"));
+
+		searchInput.setText(null);
+		createdNewUser.set(true);
+		fillDetails(user);
+		disableSelectionListener.set(true);
+		userList.refresh();
+		userList.getSelectionModel().select(user);
+	}
+
+
+	@FXML
+	private void onDelete() {
+		final String username;
+		final User   user;
+
+		user     = userList.getSelectionModel().getSelectedItem();
+		username = user.getUsername();
+
+		if (model.delete(user)) {
+			notificationPane.show(resources.get("msg.deleted", username));
+			userList.refresh();
+			userList.getSelectionModel().clearSelection();
+		}
+	}
+
+
+	@FXML
+	private void onSave() {
+		final User user;
+
+		if (resources.get("user.new").equals(nameInput.getText()) ||
+		    nameInput.getText() == null || nameInput.getText().isEmpty()) {
+			notificationPane.show(resources.get("user.another.name"));
+			return;
+		}
+
+		user = userList.getSelectionModel().getSelectedItem();
+		user.setUsername(nameInput.getText());
+		user.setAdmin(adminCheck.isSelected());
+
+		if (model.save(user, createdNewUser.get())) {
+			createdNewUser.set(false);
+			nameInput.setDisable(true);
+			userList.setItems(filteredList.sorted(Comparator.comparing(User::getUsername)));
+			userList.refresh();
+			notificationPane.show(resources.get("msg.saved", user.getUsername()));
+		}
 	}
 
 
 	@Override
 	public void setNotificationPane(NotificationPane pane) {
 		notificationPane = pane;
+	}
+
+
+	private final class UserCell extends ListCell<User> {
+		@Override
+		protected void updateItem(User item, boolean empty) {
+			super.updateItem(item, empty);
+
+			if (item == null || empty)
+				setText(null);
+			else
+				setText(item.getUsername());
+		}
 	}
 }

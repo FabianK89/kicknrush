@@ -3,6 +3,7 @@ package de.fmk.kicknrush.rest;
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.pojo.User;
+import javafx.collections.FXCollections;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -15,6 +16,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +79,43 @@ public class RestHandler {
 	}
 
 
+	public boolean administrateUser(final User user, final boolean isNew) {
+		final MultiValueMap<String, Object> values;
+		final ResponseEntity<Boolean>       response;
+
+		values = new LinkedMultiValueMap<>();
+		values.add(UserCacheKey.SESSION.getKey(), cacheProvider.getUserCache().getStringValue(UserCacheKey.SESSION));
+		values.add(UserCacheKey.USER_ID.getKey(), user.getId());
+		values.add(UserCacheKey.USERNAME.getKey(), user.getUsername());
+		values.add(UserCacheKey.IS_ADMIN.getKey(), Boolean.toString(user.isAdmin()));
+		values.add("create.new", Boolean.toString(isNew));
+
+		response = restTemplate.postForEntity(baseUrl.concat("/user/admin/administrateUser"), values, Boolean.class);
+
+		if (HttpStatus.OK == response.getStatusCode())
+			return response.getBody();
+
+		return false;
+	}
+
+
+	public boolean deleteUser(final User user) {
+		final MultiValueMap<String, Object> values;
+		final ResponseEntity<Boolean>       response;
+
+		values = new LinkedMultiValueMap<>();
+		values.add(UserCacheKey.SESSION.getKey(), cacheProvider.getUserCache().getStringValue(UserCacheKey.SESSION));
+		values.add(UserCacheKey.USER_ID.getKey(), user.getId());
+
+		response = restTemplate.postForEntity(baseUrl.concat("/user/admin/deleteUser"), values, Boolean.class);
+
+		if (HttpStatus.OK == response.getStatusCode())
+			return response.getBody();
+
+		return false;
+	}
+
+
 	public boolean updateUser(final String username, final String password, final String salt) {
 		final MultiValueMap<String, Object> values;
 		final ResponseEntity<Boolean>       response;
@@ -103,15 +142,25 @@ public class RestHandler {
 		usernames = new ArrayList<>();
 		response  = restTemplate.getForEntity(baseUrl.concat("/user/getUsernames"), List.class);
 
-		if (HttpStatus.OK == response.getStatusCode())
-		{
-			for (final Object object : response.getBody())
-			{
+		if (HttpStatus.OK == response.getStatusCode()) {
+			for (final Object object : response.getBody()) {
 				if (object instanceof String)
 					usernames.add((String) object);
 			}
 		}
 
 		return usernames;
+	}
+
+
+	public List<User> getUsers() {
+		final ResponseEntity<User[]> response;
+
+		response = restTemplate.getForEntity(baseUrl.concat("/user/getUsers"), User[].class);
+
+		if (HttpStatus.OK == response.getStatusCode())
+			return FXCollections.observableArrayList(response.getBody());
+
+		return Collections.emptyList();
 	}
 }
