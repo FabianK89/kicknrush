@@ -38,7 +38,7 @@ public class UTF8Resources {
 	 * @param args Arguments to format the string.
 	 * @return the formatted string encoded to UTF-8.
 	 */
-	public String get(final String key, String... args) {
+	public String get(final String key, Object... args) {
 		if (key == null)
 			return null;
 
