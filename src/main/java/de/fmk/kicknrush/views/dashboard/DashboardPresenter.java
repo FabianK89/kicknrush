@@ -10,6 +10,7 @@ import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.dashboard.DashboardModel;
 import de.fmk.kicknrush.views.INotificationPresenter;
 import de.fmk.kicknrush.views.administration.AdministrationView;
+import de.fmk.kicknrush.views.groups.GroupsView;
 import de.fmk.kicknrush.views.login.LoginView;
 import de.fmk.kicknrush.views.settings.SettingsView;
 import javafx.application.Platform;
@@ -40,6 +41,8 @@ public class DashboardPresenter implements Initializable {
 	private BorderPane mainPane;
 	@FXML
 	private Tab        adminTab;
+	@FXML
+	private Tab        groupsTab;
 	@FXML
 	private Tab        settingsTab;
 	@FXML
@@ -76,13 +79,12 @@ public class DashboardPresenter implements Initializable {
 		cache.getBooleanProperty(UserCacheKey.CHANGE_PWD).addListener((obs, oldValue, newValue) ->
 				tabPane.getTabs().stream().filter(tab -> tab != settingsTab).forEach(tab -> tab.setDisable(newValue)));
 
-		if (!cache.getBooleanValue(UserCacheKey.IS_ADMIN)) {
+		createTabView(groupsTab, new GroupsView());
+
+		if (!cache.getBooleanValue(UserCacheKey.IS_ADMIN))
 			tabPane.getTabs().remove(adminTab);
-		}
-		else {
+		else
 			createTabView(adminTab, new AdministrationView());
-			tabMap.get(adminTab).enter();
-		}
 
 		createTabView(settingsTab, new SettingsView());
 
