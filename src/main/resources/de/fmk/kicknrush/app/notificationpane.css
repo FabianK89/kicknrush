@@ -1,0 +1,32 @@
+@font-face {
+    src: url("../../fonts/Exo2-Medium.otf");
+}
+
+* {
+    -fx-font-family: "Exo 2 Medium";
+}
+
+.notification-pane .notification-bar > .pane .label {
+    -fx-text-fill: white;
+}
+
+/*********************************************************\
+* Black notification                                      *
+\*********************************************************/
+.notification-pane.black .notification-bar > .pane {
+    -fx-background-color: linear-gradient(to bottom, rgba(50,50,50,0.85), rgba(25,25,25,0.85));
+}
+
+/*********************************************************\
+* Error notification                                      *
+\*********************************************************/
+.notification-pane.error .notification-bar > .pane {
+    -fx-background-color: linear-gradient(to bottom, rgba(100,0,0,0.85), rgba(25,25,25,0.85));
+}
+
+/*********************************************************\
+* Warning notification                                    *
+\*********************************************************/
+.notification-pane.warn .notification-bar > .pane {
+    -fx-background-color: linear-gradient(to bottom, rgba(148,94,0,0.85), rgba(25,25,25,0.85));
+}

@@ -2,7 +2,7 @@ package de.fmk.kicknrush.models.dashboard;
 
 import de.fmk.kicknrush.db.DatabaseHandler;
 import de.fmk.kicknrush.helper.cache.CacheProvider;
-import de.fmk.kicknrush.rest.RestHandler;
+import de.fmk.kicknrush.service.RestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,11 +19,11 @@ public class DashboardModel {
 	@Inject
 	private DatabaseHandler dbHandler;
 	@Inject
-	private RestHandler     restHandler;
+	private RestService     restService;
 
 
 	public boolean logout() {
-		if (!restHandler.logout()) {
+		if (!restService.logout()) {
 			LOGGER.warn("Could not log out the user.");
 			return false;
 		}

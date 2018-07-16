@@ -6,7 +6,7 @@ import de.fmk.kicknrush.helper.cache.UserCache;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.models.pojo.User;
-import de.fmk.kicknrush.rest.RestHandler;
+import de.fmk.kicknrush.service.RestService;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.embed.swing.JFXPanel;
@@ -48,7 +48,7 @@ public class LoginModelTestCase {
 	@Mock
 	private DatabaseHandler dbHandler;
 	@Mock
-	private RestHandler     restHandler;
+	private RestService     restService;
 	@Mock
 	private UserCache       userCache;
 
@@ -117,10 +117,10 @@ public class LoginModelTestCase {
 		doNothing().when(userCache).putStringValue(eq(UserCacheKey.PASSWORD), valueCapture.capture());
 
 		// rest handler
-		assertNotNull(restHandler);
+		assertNotNull(restService);
 
-		when(restHandler.loginUser(null, null)).thenReturn(null);
-		when(restHandler.loginUser(ADMIN, PWD)).thenReturn(user);
+		when(restService.loginUser(null, null)).thenReturn(null);
+		when(restService.loginUser(ADMIN, PWD)).thenReturn(user);
 
 		loginModel.login(null, null);
 

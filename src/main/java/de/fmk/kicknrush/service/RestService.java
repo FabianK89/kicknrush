@@ -1,4 +1,4 @@
-package de.fmk.kicknrush.rest;
+package de.fmk.kicknrush.service;
 
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
@@ -10,6 +10,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -22,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 
 
-public class RestHandler {
+public class RestService
+{
 	@Inject @Named(CacheProvider.CACHE_ID)
 	private CacheProvider cacheProvider;
 

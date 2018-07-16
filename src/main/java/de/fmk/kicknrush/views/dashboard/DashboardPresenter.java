@@ -9,6 +9,7 @@ import de.fmk.kicknrush.helper.cache.UserCache;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.dashboard.DashboardModel;
 import de.fmk.kicknrush.views.INotificationPresenter;
+import de.fmk.kicknrush.views.Notification;
 import de.fmk.kicknrush.views.administration.AdministrationView;
 import de.fmk.kicknrush.views.groups.GroupsView;
 import de.fmk.kicknrush.views.login.LoginView;
@@ -114,7 +115,7 @@ public class DashboardPresenter implements Initializable {
 
 	private void createTabView(final Tab tab, final FXMLView view) {
 		final INotificationPresenter presenter;
-		final NotificationPane       notificationPane;
+		final Notification           notificationPane;
 		final Parent                 pane;
 
 		pane = view.getView();
@@ -131,8 +132,7 @@ public class DashboardPresenter implements Initializable {
 
 		tabMap.put(tab, presenter);
 
-		notificationPane = new NotificationPane(pane);
-		notificationPane.setShowFromTop(false);
+		notificationPane = new Notification(pane);
 		notificationPane.setCloseButtonVisible(false);
 		notificationPane.setOnShown(event -> {
 			if (notificationPane.isShowing())

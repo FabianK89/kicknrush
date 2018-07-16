@@ -29,23 +29,38 @@ public class ResourceHelper {
 	 */
 	public static List<Image> getAppIcons() {
 		final List<Image> appImages;
-		final String      packagePath;
 		final String[]    imageNames;
 
-		appImages   = new ArrayList<>();
-		packagePath = "/de/fmk/kicknrush/images/";
-		imageNames  = new String[] { "app_icon16x16.png", "app_icon32x32.png", "app_icon64x64.png" };
+		appImages  = new ArrayList<>();
+		imageNames = new String[] { "app_icon16x16.png", "app_icon32x32.png", "app_icon64x64.png" };
 
-		for (final String name : imageNames) {
-			try (InputStream is = ResourceHelper.class.getResourceAsStream(packagePath.concat(name))) {
-				appImages.add(new Image(is));
-			}
-			catch (IOException ioex) {
-				LOGGER.error("Could not load the image with name '{}'.", name, ioex);
-			}
-		}
+		for (final String name : imageNames)
+			appImages.add(getImage(name));
 
 		return appImages;
+	}
+
+
+	/**
+	 * Load a image.
+	 * @param imageName The name of the image.
+	 * @return the image or <code>null</code>.
+	 */
+	public static Image getImage(String imageName) {
+		final Image  image;
+		final String packagePath;
+
+		packagePath = "/de/fmk/kicknrush/images/";
+
+		try (InputStream is = ResourceHelper.class.getResourceAsStream(packagePath.concat(imageName))) {
+			image = new Image(is);
+		}
+		catch (IOException ioex) {
+			LOGGER.error("Could not load the image with name '{}'.", imageName, ioex);
+			return null;
+		}
+
+		return image;
 	}
 
 
