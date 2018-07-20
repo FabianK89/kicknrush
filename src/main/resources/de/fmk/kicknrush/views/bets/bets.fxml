@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<GridPane hgap="10.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.fmk.kicknrush.views.bets.BetsPresenter">
+   <rowConstraints>
+      <RowConstraints vgrow="ALWAYS" />
+   </rowConstraints>
+   <columnConstraints>
+      <ColumnConstraints hgrow="NEVER" />
+      <ColumnConstraints hgrow="ALWAYS" />
+   </columnConstraints>
+   <children>
+      <VBox spacing="5.0">
+         <children>
+            <ToggleButton fx:id="matchButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%nav.matches" />
+            <ToggleButton fx:id="bonusButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%nav.bonus.bets" />
+            <ToggleButton fx:id="statisticButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="%nav.statistic" />
+         </children>
+      </VBox>
+      <StackPane fx:id="contentPane" prefHeight="100.0" prefWidth="100.0" GridPane.columnIndex="1">
+         <children>
+            <AnchorPane fx:id="matchPane" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: red;" />
+            <AnchorPane fx:id="bonusPane" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: blue;" />
+            <AnchorPane fx:id="statisticPane" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: green;" />
+         </children>
+      </StackPane>
+   </children>
+</GridPane>

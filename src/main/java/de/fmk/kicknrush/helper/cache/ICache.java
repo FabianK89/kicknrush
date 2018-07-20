@@ -164,7 +164,7 @@ public interface ICache {
 	 * @param key The key of the value.
 	 * @param value The value to store.
 	 * @param <T> Type of the stored value.
-	 * @throws java.lang.IllegalArgumentException if the type of the value does not match to the key.
+	 * @throws java.lang.IllegalArgumentException if the type of the value does not matches to the key.
 	 */
 	<T> void putValue(ICacheKey key, T value);
 

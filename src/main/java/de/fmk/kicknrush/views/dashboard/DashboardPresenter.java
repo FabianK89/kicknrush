@@ -10,7 +10,7 @@ import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.dashboard.DashboardModel;
 import de.fmk.kicknrush.views.INotificationPresenter;
 import de.fmk.kicknrush.views.administration.AdministrationView;
-import de.fmk.kicknrush.views.groups.GroupsView;
+import de.fmk.kicknrush.views.bets.BetsView;
 import de.fmk.kicknrush.views.login.LoginView;
 import de.fmk.kicknrush.views.settings.SettingsView;
 import javafx.application.Platform;
@@ -42,7 +42,7 @@ public class DashboardPresenter implements Initializable {
 	@FXML
 	private Tab        adminTab;
 	@FXML
-	private Tab        groupsTab;
+	private Tab        betsTab;
 	@FXML
 	private Tab        settingsTab;
 	@FXML
@@ -79,7 +79,7 @@ public class DashboardPresenter implements Initializable {
 		cache.getBooleanProperty(UserCacheKey.CHANGE_PWD).addListener((obs, oldValue, newValue) ->
 				tabPane.getTabs().stream().filter(tab -> tab != settingsTab).forEach(tab -> tab.setDisable(newValue)));
 
-		createTabView(groupsTab, new GroupsView());
+		createTabView(betsTab, new BetsView());
 
 		if (!cache.getBooleanValue(UserCacheKey.IS_ADMIN))
 			tabPane.getTabs().remove(adminTab);
@@ -100,11 +100,20 @@ public class DashboardPresenter implements Initializable {
 					return;
 			}
 
-			tabMap.get(isSelected).enter();
+			if (wasSelected != null)
+				tabMap.get(wasSelected).leave();
+
+			if (isSelected != null)
+				tabMap.get(isSelected).enter();
 		});
 
-		if (cache.getBooleanValue(UserCacheKey.CHANGE_PWD))
+		if (cache.getBooleanValue(UserCacheKey.CHANGE_PWD)) {
 			tabPane.getSelectionModel().select(settingsTab);
+		}
+		else {
+			tabPane.getSelectionModel().clearSelection();
+			tabPane.getSelectionModel().select(betsTab);
+		}
 
 		tabPane.getTabs().stream()
 		       .filter(tab -> tab != settingsTab)

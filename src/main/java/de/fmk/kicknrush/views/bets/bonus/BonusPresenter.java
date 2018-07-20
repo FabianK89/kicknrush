@@ -1,4 +1,4 @@
-package de.fmk.kicknrush.views.groups;
+package de.fmk.kicknrush.views.bets.bonus;
 
 import de.fmk.kicknrush.views.INotificationPresenter;
 import javafx.fxml.Initializable;
@@ -11,7 +11,7 @@ import java.util.ResourceBundle;
 /**
  * @author FabianK
  */
-public class GroupsPresenter implements INotificationPresenter, Initializable {
+public class BonusPresenter implements INotificationPresenter, Initializable {
 	@Override
 	public void enter() {
 

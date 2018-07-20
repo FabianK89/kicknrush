@@ -23,7 +23,7 @@
    <center>
       <TabPane fx:id="tabPane" prefHeight="200.0" prefWidth="200.0" side="LEFT" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
         <tabs>
-            <Tab fx:id="groupsTab" closable="false" text="%tab.groups" />
+            <Tab fx:id="betsTab" closable="false" text="%tab.bets" />
             <Tab fx:id="adminTab" closable="false" text="%tab.administration" />
           <Tab fx:id="settingsTab" closable="false" text="%tab.settings" />
         </tabs>

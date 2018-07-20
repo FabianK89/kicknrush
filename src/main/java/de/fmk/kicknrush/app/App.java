@@ -3,6 +3,7 @@ package de.fmk.kicknrush.app;
 import com.airhacks.afterburner.injection.Injector;
 import de.fmk.kicknrush.db.DatabaseHandler;
 import de.fmk.kicknrush.helper.ResourceHelper;
+import de.fmk.kicknrush.helper.ThreadHelper;
 import de.fmk.kicknrush.views.login.LoginView;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -17,6 +18,7 @@ public class App extends Application {
 	private static Stage stage;
 
 	private DatabaseHandler dbHandler;
+	private ThreadHelper    threadHelper;
 
 
 	@Override
@@ -26,6 +28,7 @@ public class App extends Application {
 
 		customProperties = new HashMap<>();
 		customProperties.put("dbHandler", dbHandler);
+		customProperties.put("threadHelper", threadHelper);
 
 		Injector.setConfigurationSource(customProperties::get);
 
@@ -47,8 +50,9 @@ public class App extends Application {
 
 		super.init();
 
-		properties = ResourceHelper.loadProperties(DatabaseHandler.class, "db.properties");
-		dbHandler  = new DatabaseHandler(properties);
+		threadHelper = new ThreadHelper();
+		properties   = ResourceHelper.loadProperties(DatabaseHandler.class, "db.properties");
+		dbHandler    = new DatabaseHandler(properties);
 		dbHandler.createInitialTables();
 	}
 
@@ -57,6 +61,7 @@ public class App extends Application {
 	public void stop() throws Exception
 	{
 		Injector.forgetAll();
+		threadHelper.stopAllThreads();
 		dbHandler.closeConnections();
 
 		super.stop();

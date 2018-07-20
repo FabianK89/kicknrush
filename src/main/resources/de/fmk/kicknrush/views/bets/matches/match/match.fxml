@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<GridPane fx:id="contentGrid" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.fmk.kicknrush.views.bets.matches.match.MatchPresenter">
+   <rowConstraints>
+      <RowConstraints vgrow="NEVER" />
+      <RowConstraints vgrow="NEVER" />
+      <RowConstraints vgrow="NEVER" />
+      <RowConstraints vgrow="NEVER" />
+      <RowConstraints vgrow="ALWAYS" />
+   </rowConstraints>
+   <columnConstraints>
+      <ColumnConstraints hgrow="ALWAYS" percentWidth="40.0" />
+      <ColumnConstraints hgrow="NEVER" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+      <ColumnConstraints hgrow="NEVER" />
+      <ColumnConstraints hgrow="ALWAYS" percentWidth="40.0" />
+   </columnConstraints>
+   <children>
+      <HBox alignment="CENTER" GridPane.columnSpan="2147483647">
+         <children>
+            <Label fx:id="kickOffLabel" text="12.12.2012 - 20:15" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER" GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
+         <children>
+            <Label fx:id="matchStatusLabel" />
+         </children>
+      </HBox>
+      <ImageView fx:id="homeLogo" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+         <image>
+            <Image url="@../../../../images/fc_bayern.png" />
+         </image>
+      </ImageView>
+      <Label fx:id="homeTeamLabel" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" wrapText="true" GridPane.rowIndex="1" />
+      <ImageView fx:id="guestLogo" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+         <image>
+            <Image url="@../../../../images/sc_freiburg.png" />
+         </image>
+      </ImageView>
+      <Label fx:id="guestTeamLabel" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" wrapText="true" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+      <TextField fx:id="homeBetInput" alignment="CENTER" minWidth="40.0" prefColumnCount="2" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+      <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text=":" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+      <TextField fx:id="guestBetInput" alignment="CENTER" minWidth="40.0" prefColumnCount="2" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+      <HBox alignment="CENTER" GridPane.columnSpan="2147483647" GridPane.rowIndex="3">
+         <children>
+            <Label fx:id="moreInfoLabel" text="%more.information" />
+         </children>
+      </HBox>
+      <GridPane fx:id="resultGrid" GridPane.columnSpan="2147483647" GridPane.rowIndex="4">
+        <columnConstraints>
+          <ColumnConstraints hgrow="ALWAYS" percentWidth="40.0" />
+            <ColumnConstraints hgrow="NEVER" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+            <ColumnConstraints hgrow="NEVER" />
+          <ColumnConstraints hgrow="ALWAYS" percentWidth="40.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints vgrow="NEVER" />
+          <RowConstraints vgrow="NEVER" />
+        </rowConstraints>
+         <children>
+            <Separator prefWidth="200.0" GridPane.columnSpan="2147483647">
+               <GridPane.margin>
+                  <Insets left="10.0" right="10.0" />
+               </GridPane.margin>
+            </Separator>
+            <Label text="Aktuelles Ergebnis" GridPane.rowIndex="1">
+               <GridPane.margin>
+                  <Insets left="10.0" />
+               </GridPane.margin>
+            </Label>
+            <Label alignment="CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="30.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text=":" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <Label alignment="CENTER" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="30.0" text="0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+            <HBox alignment="CENTER_RIGHT" spacing="5.0" GridPane.columnIndex="4" GridPane.rowIndex="1">
+               <children>
+                  <Label text="Punkte:" />
+                  <Label text="0" />
+               </children>
+               <GridPane.margin>
+                  <Insets right="10.0" />
+               </GridPane.margin>
+            </HBox>
+         </children>
+      </GridPane>
+   </children>
+</GridPane>
