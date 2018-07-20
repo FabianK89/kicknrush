@@ -4,7 +4,7 @@ import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.AbstractStatusModel;
 import de.fmk.kicknrush.models.pojo.User;
-import de.fmk.kicknrush.rest.RestHandler;
+import de.fmk.kicknrush.service.RestService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -25,7 +25,7 @@ public class AdministrationModel extends AbstractStatusModel {
 	@Inject @Named(CacheProvider.CACHE_ID)
 	private CacheProvider cacheProvider;
 	@Inject
-	private RestHandler   restHandler;
+	private RestService   restService;
 
 	private ObservableList<User> users;
 
@@ -65,7 +65,7 @@ public class AdministrationModel extends AbstractStatusModel {
 		if (user == null)
 			return false;
 
-		if (restHandler.deleteUser(user)) {
+		if (restService.deleteUser(user)) {
 			removeUser(user);
 			return true;
 		}
@@ -93,7 +93,7 @@ public class AdministrationModel extends AbstractStatusModel {
 		userID   = cacheProvider.getUserCache().getStringValue(UserCacheKey.USER_ID);
 		userList = new ArrayList<>();
 
-		restHandler.getUsers().forEach(user -> {
+		restService.getUsers().forEach(user -> {
 			if (!userID.equals(user.getId()))
 				userList.add(user);
 		});
@@ -119,7 +119,7 @@ public class AdministrationModel extends AbstractStatusModel {
 	 * @return <code>true</code>, if the user could have been saved on the server.
 	 */
 	public boolean save(final User user, final boolean createNew) {
-		return restHandler.administrateUser(user, createNew);
+		return restService.administrateUser(user, createNew);
 	}
 
 

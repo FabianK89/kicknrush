@@ -13,5 +13,5 @@ public interface INotificationPresenter extends IPaneHandler {
 	 * Set the notification pane.
 	 * @param pane The notification pane.
 	 */
-	void setNotificationPane(NotificationPane pane);
+	void setNotificationPane(Notification pane);
 }

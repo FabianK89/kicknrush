@@ -2,6 +2,7 @@ package de.fmk.kicknrush.views.bets;
 
 import com.airhacks.afterburner.views.FXMLView;
 import de.fmk.kicknrush.views.INotificationPresenter;
+import de.fmk.kicknrush.views.Notification;
 import de.fmk.kicknrush.views.bets.bonus.BonusView;
 import de.fmk.kicknrush.views.bets.matches.MatchesView;
 import de.fmk.kicknrush.views.bets.statistic.StatisticView;
@@ -10,7 +11,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.StackPane;
-import org.controlsfx.control.NotificationPane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -29,11 +29,11 @@ public class BetsPresenter implements INotificationPresenter, Initializable {
 	@FXML
 	private ToggleButton statisticButton;
 
-	private BonusView        bonusView;
-	private MatchesView      matchesView;
-	private NotificationPane notificationPane;
-	private StatisticView    statisticView;
-	private ToggleGroup      navGroup;
+	private BonusView     bonusView;
+	private MatchesView   matchesView;
+	private Notification  notificationPane;
+	private StatisticView statisticView;
+	private ToggleGroup   navGroup;
 
 
 	@Override
@@ -123,7 +123,7 @@ public class BetsPresenter implements INotificationPresenter, Initializable {
 
 
 	@Override
-	public void setNotificationPane(NotificationPane pane) {
+	public void setNotificationPane(Notification pane) {
 		notificationPane = pane;
 		navGroup.getToggles().forEach(toggle -> {
 			final INotificationPresenter presenter;

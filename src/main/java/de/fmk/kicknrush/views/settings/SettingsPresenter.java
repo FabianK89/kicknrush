@@ -1,6 +1,7 @@
 package de.fmk.kicknrush.views.settings;
 
 import de.fmk.kicknrush.views.INotificationPresenter;
+import de.fmk.kicknrush.views.Notification;
 import de.fmk.kicknrush.views.settings.appsettings.AppSettingsPresenter;
 import de.fmk.kicknrush.views.settings.appsettings.AppSettingsView;
 import de.fmk.kicknrush.views.settings.usersettings.UserSettingsPresenter;
@@ -20,7 +21,7 @@ import java.util.ResourceBundle;
 
 
 public class SettingsPresenter implements Initializable, INotificationPresenter {
-	private final ObjectProperty<NotificationPane> notificationPaneProperty;
+	private final ObjectProperty<Notification> notificationPaneProperty;
 
 	@FXML
 	private Label appSettingsLabel;
@@ -95,7 +96,7 @@ public class SettingsPresenter implements Initializable, INotificationPresenter 
 
 
 	@Override
-	public void setNotificationPane(NotificationPane pane) {
+	public void setNotificationPane(Notification pane) {
 		notificationPaneProperty.set(pane);
 	}
 }

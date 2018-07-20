@@ -1,5 +1,5 @@
 package de.fmk.kicknrush.models;
 
 public enum Status {
-	FAILED, INITIAL, RUNNING, SUCCESS
+	FAILED, INITIAL, NO_CONNECTION, RUNNING, SUCCESS
 }

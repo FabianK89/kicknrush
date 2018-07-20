@@ -4,7 +4,7 @@ import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.UserCache;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.pojo.User;
-import de.fmk.kicknrush.rest.RestHandler;
+import de.fmk.kicknrush.service.RestService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +33,7 @@ class AdministrationModelTest {
 	@Mock
 	private CacheProvider cacheProvider;
 	@Mock
-	private RestHandler   restHandler;
+	private RestService   restService;
 	@Mock
 	private UserCache     userCache;
 
@@ -73,8 +73,8 @@ class AdministrationModelTest {
 		list.add(new User("B", true, null, null, "Admin", null));
 		list.add(new User("C", true, null, null, "Alf", null));
 
-		assertNotNull(restHandler);
-		when(restHandler.getUsers()).thenReturn(list);
+		assertNotNull(restService);
+		when(restService.getUsers()).thenReturn(list);
 
 		assertNotNull(userCache);
 		when(userCache.getStringValue(UserCacheKey.USER_ID)).thenReturn("B");
@@ -96,8 +96,8 @@ class AdministrationModelTest {
 	void testDelete() {
 		final User user = model.createUser("Test");
 
-		assertNotNull(restHandler);
-		when(restHandler.deleteUser(isA(User.class))).thenReturn(false, true);
+		assertNotNull(restService);
+		when(restService.deleteUser(isA(User.class))).thenReturn(false, true);
 
 		assertFalse(model.delete(null));
 		assertFalse(model.delete(new User()));
@@ -109,10 +109,10 @@ class AdministrationModelTest {
 
 	@Test
 	void testSave() {
-		assertNotNull(restHandler);
-		when(restHandler.administrateUser(isA(User.class), isA(Boolean.class))).thenReturn(true);
+		assertNotNull(restService);
+		when(restService.administrateUser(isA(User.class), isA(Boolean.class))).thenReturn(true);
 
 		assertTrue(model.save(new User(), true));
-		verify(restHandler).administrateUser(isA(User.class), isA(Boolean.class));
+		verify(restService).administrateUser(isA(User.class), isA(Boolean.class));
 	}
 }

@@ -3,6 +3,7 @@ package de.fmk.kicknrush.views.administration;
 import de.fmk.kicknrush.helper.UTF8Resources;
 import de.fmk.kicknrush.models.administration.AdministrationModel;
 import de.fmk.kicknrush.models.pojo.User;
+import de.fmk.kicknrush.views.Notification;
 import de.fmk.kicknrush.views.settings.ISettingsPresenter;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -54,7 +55,7 @@ public class AdministrationPresenter implements ISettingsPresenter, Initializabl
 	private AdministrationModel model;
 
 	private FilteredList<User> filteredList;
-	private NotificationPane   notificationPane;
+	private Notification       notificationPane;
 	private UTF8Resources      resources;
 
 
@@ -215,7 +216,7 @@ public class AdministrationPresenter implements ISettingsPresenter, Initializabl
 
 
 	@Override
-	public void setNotificationPane(NotificationPane pane) {
+	public void setNotificationPane(Notification pane) {
 		notificationPane = pane;
 	}
 

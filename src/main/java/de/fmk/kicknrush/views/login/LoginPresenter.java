@@ -1,10 +1,14 @@
 package de.fmk.kicknrush.views.login;
 
 import de.fmk.kicknrush.helper.ApplicationHelper;
+import de.fmk.kicknrush.helper.UTF8Resources;
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.SettingCacheKey;
 import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.models.login.LoginModel;
+import de.fmk.kicknrush.views.AppImage;
+import de.fmk.kicknrush.views.INotificationPresenter;
+import de.fmk.kicknrush.views.Notification;
 import de.fmk.kicknrush.views.dashboard.DashboardView;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -22,17 +26,13 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 
-public class LoginPresenter implements Initializable {
+public class LoginPresenter implements INotificationPresenter, Initializable {
 	@FXML
 	private GridPane      grid;
 	@FXML
 	private PasswordField passwordInput;
 	@FXML
-	private ProgressBar   progressBar;
-	@FXML
 	private TextField     usernameInput;
-	@FXML
-	private TextFlow      textFlow;
 
 	@Inject
 	private ApplicationHelper appHelper;
@@ -41,20 +41,25 @@ public class LoginPresenter implements Initializable {
 	@Inject
 	private LoginModel        model;
 
-	private ResourceBundle bundle;
+	private Notification  notificationPane;
+	private UTF8Resources resources;
 
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		bundle = resources;
-
-		progressBar.visibleProperty().bind(model.statusProperty().isEqualTo(Status.RUNNING));
+		this.resources = new UTF8Resources(resources);
 
 		model.loadSettings();
 
 		model.statusProperty().addListener((observable, oldStatus, newStatus) -> {
 			if (Status.FAILED == newStatus){
-				showMessage(bundle.getString("msg.login.failed"));
+				notificationPane.showError(this.resources.get("msg.login.failed"), AppImage.LOGIN_FAILED);
+			}
+			else if (Status.NO_CONNECTION == newStatus) {
+				notificationPane.showError(this.resources.get("msg.server.not.available"), AppImage.CONNECTION_PROBLEM);
+			}
+			else if (Status.RUNNING == newStatus) {
+				notificationPane.showLoading(this.resources.get("msg.loading"));
 			}
 			else if (Status.SUCCESS == newStatus) {
 				cacheProvider.getSettingCache().putDoubleValue(SettingCacheKey.LOGIN_WINDOW_HEIGHT,
@@ -78,14 +83,14 @@ public class LoginPresenter implements Initializable {
 
 		if (username == null || username.isEmpty())
 		{
-			showMessage(bundle.getString("msg.missing.username"));
+			notificationPane.showWarning(resources.get("msg.missing.username"), AppImage.LOGIN_FAILED);
 			usernameInput.requestFocus();
 			return;
 		}
 
 		if (password == null || password.isEmpty())
 		{
-			showMessage(bundle.getString("msg.missing.password"));
+			notificationPane.showWarning(resources.get("msg.missing.password"), AppImage.LOGIN_FAILED);
 			passwordInput.requestFocus();
 			return;
 		}
@@ -100,13 +105,19 @@ public class LoginPresenter implements Initializable {
 	}
 
 
-	private void showMessage(final String message) {
-		final Text textNode;
+	@Override
+	public void setNotificationPane(Notification pane) {
+		notificationPane = pane;
+	}
 
-		textNode = new Text(message);
-		textNode.setStyle("-fx-fill: white");
 
-		textFlow.getChildren().clear();
-		textFlow.getChildren().add(textNode);
+	@Override
+	public void enter() {
+	}
+
+
+	@Override
+	public boolean leave() {
+		return false;
 	}
 }

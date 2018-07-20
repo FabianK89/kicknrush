@@ -5,6 +5,7 @@ import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.models.settings.UserSettingsModel;
+import de.fmk.kicknrush.views.Notification;
 import de.fmk.kicknrush.views.settings.ISettingsPresenter;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -42,8 +43,8 @@ public class UserSettingsPresenter implements ISettingsPresenter, Initializable 
 	@Inject
 	private UserSettingsModel model;
 
-	private NotificationPane notificationPane;
-	private UTF8Resources    resources;
+	private Notification  notificationPane;
+	private UTF8Resources resources;
 
 
 	public UserSettingsPresenter() {
@@ -118,7 +119,7 @@ public class UserSettingsPresenter implements ISettingsPresenter, Initializable 
 
 
 	@Override
-	public void setNotificationPane(NotificationPane pane) {
+	public void setNotificationPane(Notification pane) {
 		notificationPane = pane;
 	}
 }

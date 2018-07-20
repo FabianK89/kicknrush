@@ -3,6 +3,7 @@ package de.fmk.kicknrush.views.settings.appsettings;
 import de.fmk.kicknrush.helper.cache.SettingCacheKey;
 import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.models.settings.AppSettingsModel;
+import de.fmk.kicknrush.views.Notification;
 import de.fmk.kicknrush.views.settings.ISettingsPresenter;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,7 +25,7 @@ public class AppSettingsPresenter implements ISettingsPresenter, Initializable {
 	@Inject
 	private AppSettingsModel model;
 
-	private NotificationPane notificationPane;
+	private Notification notificationPane;
 
 
 	@Override
@@ -78,7 +79,7 @@ public class AppSettingsPresenter implements ISettingsPresenter, Initializable {
 
 
 	@Override
-	public void setNotificationPane(NotificationPane pane) {
+	public void setNotificationPane(Notification pane) {
 		notificationPane = pane;
 	}
 }

@@ -1,8 +1,8 @@
 package de.fmk.kicknrush.views.bets.statistic;
 
 import de.fmk.kicknrush.views.INotificationPresenter;
+import de.fmk.kicknrush.views.Notification;
 import javafx.fxml.Initializable;
-import org.controlsfx.control.NotificationPane;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -31,7 +31,7 @@ public class StatisticPresenter implements INotificationPresenter, Initializable
 
 
 	@Override
-	public void setNotificationPane(NotificationPane pane) {
+	public void setNotificationPane(Notification pane) {
 
 	}
 }

@@ -4,6 +4,8 @@ import com.airhacks.afterburner.injection.Injector;
 import de.fmk.kicknrush.db.DatabaseHandler;
 import de.fmk.kicknrush.helper.ResourceHelper;
 import de.fmk.kicknrush.helper.ThreadHelper;
+import de.fmk.kicknrush.views.Notification;
+import de.fmk.kicknrush.views.login.LoginPresenter;
 import de.fmk.kicknrush.views.login.LoginView;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -23,8 +25,10 @@ public class App extends Application {
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		final LoginView           login;
+		final LoginView           loginView;
 		final Map<Object, Object> customProperties;
+		final Notification        notificationPane;
+		final String              notificationCss;
 
 		customProperties = new HashMap<>();
 		customProperties.put("dbHandler", dbHandler);
@@ -34,11 +38,17 @@ public class App extends Application {
 
 		setPrimaryStage(primaryStage);
 
-		login = new LoginView();
+		notificationCss = this.getClass().getResource("notificationpane.css").toExternalForm();
+
+		loginView        = new LoginView();
+		notificationPane = new Notification(loginView.getView());
+
+		((LoginPresenter) loginView.getPresenter()).setNotificationPane(notificationPane);
 
 		primaryStage.setTitle("Kick'n'Rush");
 		primaryStage.getIcons().addAll(ResourceHelper.getAppIcons());
-		primaryStage.setScene(new Scene(login.getView()));
+		primaryStage.setScene(new Scene(notificationPane));
+		primaryStage.getScene().getStylesheets().add(notificationCss);
 		primaryStage.setResizable(false);
 		primaryStage.show();
 	}

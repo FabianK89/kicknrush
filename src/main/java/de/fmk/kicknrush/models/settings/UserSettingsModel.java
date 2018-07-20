@@ -4,7 +4,7 @@ import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.AbstractStatusModel;
 import de.fmk.kicknrush.models.Status;
-import de.fmk.kicknrush.rest.RestHandler;
+import de.fmk.kicknrush.service.RestService;
 import de.fmk.kicknrush.security.PasswordUtils;
 import javafx.application.Platform;
 
@@ -18,7 +18,7 @@ public class UserSettingsModel extends AbstractStatusModel {
 	@Inject @Named(CacheProvider.CACHE_ID)
 	private CacheProvider cacheProvider;
 	@Inject
-	private RestHandler   restHandler;
+	private RestService   restService;
 
 	private List<String> usernames;
 
@@ -30,7 +30,7 @@ public class UserSettingsModel extends AbstractStatusModel {
 
 	@PostConstruct
 	public void init() {
-		usernames = restHandler.getUsernames();
+		usernames = restService.getUsernames();
 		usernames.remove(cacheProvider.getUserCache().getStringValue(UserCacheKey.USERNAME));
 	}
 
@@ -82,7 +82,7 @@ public class UserSettingsModel extends AbstractStatusModel {
 			cacheProvider.getUserCache().putStringValue(UserCacheKey.PASSWORD, secretPassword);
 			cacheProvider.getUserCache().putStringValue(UserCacheKey.SALT, salt);
 
-			if (restHandler.updateUser(username, secretPassword, salt)) {
+			if (restService.updateUser(username, secretPassword, salt)) {
 				Platform.runLater(() -> statusProperty.set(Status.SUCCESS));
 			}
 		});

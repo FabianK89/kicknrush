@@ -7,13 +7,14 @@ import de.fmk.kicknrush.helper.cache.UserCache;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.models.pojo.User;
-import de.fmk.kicknrush.rest.RestHandler;
+import de.fmk.kicknrush.service.RestService;
 import de.fmk.kicknrush.security.PasswordUtils;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.ResourceAccessException;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -37,7 +38,7 @@ public class LoginModel {
 	@Inject
 	private DatabaseHandler   dbHandler;
 	@Inject
-	private RestHandler       restHandler;
+	private RestService       restService;
 
 	private ObjectProperty<Status> status;
 
@@ -107,7 +108,14 @@ public class LoginModel {
 				return;
 			}
 
-			user  = restHandler.loginUser(username, securePassword);
+			try {
+				user = restService.loginUser(username, securePassword);
+			}
+			catch (ResourceAccessException raex) {
+				Platform.runLater(() -> status.set(Status.NO_CONNECTION));
+				return;
+			}
+
 			cache = cacheProvider.getUserCache();
 
 			if (user != null) {

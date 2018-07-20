@@ -3,6 +3,7 @@ package de.fmk.kicknrush.views.bets.matches.match;
 import de.fmk.kicknrush.helper.UTF8Resources;
 import de.fmk.kicknrush.models.bets.matches.match.MatchModel;
 import de.fmk.kicknrush.views.INotificationPresenter;
+import de.fmk.kicknrush.views.Notification;
 import javafx.beans.value.ChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -11,7 +12,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import org.controlsfx.control.NotificationPane;
 import org.controlsfx.control.PopOver;
 
 import java.net.URL;
@@ -45,9 +45,9 @@ public class MatchPresenter implements INotificationPresenter, Initializable {
 	@FXML
 	private TextField homeBetInput;
 
-	private MatchModel       model;
-	private NotificationPane notificationPane;
-	private UTF8Resources    resources;
+	private MatchModel    model;
+	private Notification  notificationPane;
+	private UTF8Resources resources;
 
 
 	@Override
@@ -153,7 +153,7 @@ public class MatchPresenter implements INotificationPresenter, Initializable {
 
 
 	@Override
-	public void setNotificationPane(NotificationPane pane) {
+	public void setNotificationPane(Notification pane) {
 		notificationPane = pane;
 	}
 

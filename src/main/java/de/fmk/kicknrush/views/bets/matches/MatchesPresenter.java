@@ -4,6 +4,7 @@ import de.fmk.kicknrush.models.bets.matches.MatchesModel;
 import de.fmk.kicknrush.models.bets.matches.match.MatchModel;
 import de.fmk.kicknrush.models.pojo.MatchDay;
 import de.fmk.kicknrush.views.INotificationPresenter;
+import de.fmk.kicknrush.views.Notification;
 import de.fmk.kicknrush.views.bets.matches.match.MatchPresenter;
 import de.fmk.kicknrush.views.bets.matches.match.MatchView;
 import javafx.fxml.FXML;
@@ -12,7 +13,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.VBox;
-import org.controlsfx.control.NotificationPane;
 
 import javax.inject.Inject;
 import java.net.URL;
@@ -35,7 +35,7 @@ public class MatchesPresenter implements INotificationPresenter, Initializable {
 	@Inject
 	private MatchesModel model;
 
-	private NotificationPane notificationPane;
+	private Notification notificationPane;
 
 
 	@Override
@@ -96,7 +96,7 @@ public class MatchesPresenter implements INotificationPresenter, Initializable {
 
 
 	@Override
-	public void setNotificationPane(NotificationPane pane) {
+	public void setNotificationPane(Notification pane) {
 		notificationPane = pane;
 	}
 
