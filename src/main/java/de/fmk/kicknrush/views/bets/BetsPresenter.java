@@ -96,7 +96,9 @@ public class BetsPresenter implements INotificationPresenter, Initializable {
 
 		view = (FXMLView) userData;
 
-		contentPane.getChildren().clear();
+		if (contentPane.getChildren() != null)
+			contentPane.getChildren().clear();
+
 		contentPane.getChildren().add(view.getView());
 	}
 

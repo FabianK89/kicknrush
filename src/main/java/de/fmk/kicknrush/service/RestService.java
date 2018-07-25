@@ -2,6 +2,7 @@ package de.fmk.kicknrush.service;
 
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
+import de.fmk.kicknrush.models.pojo.Update;
 import de.fmk.kicknrush.models.pojo.User;
 import javafx.collections.FXCollections;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -152,6 +154,15 @@ public class RestService
 		}
 
 		return usernames;
+	}
+
+
+	public List<Update> getUpdates() {
+		final Update[] updates;
+
+		updates = restTemplate.getForObject(baseUrl.concat("/updates/getAll"), Update[].class);
+
+		return Arrays.asList(updates);
 	}
 
 

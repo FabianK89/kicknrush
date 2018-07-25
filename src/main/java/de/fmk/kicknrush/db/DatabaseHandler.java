@@ -1,8 +1,10 @@
 package de.fmk.kicknrush.db;
 
+import de.fmk.kicknrush.helper.TimeUtils;
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.SettingCache;
 import de.fmk.kicknrush.helper.cache.SettingCacheKey;
+import de.fmk.kicknrush.models.pojo.Update;
 import de.fmk.kicknrush.models.pojo.User;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.h2.Driver;
@@ -52,6 +54,9 @@ public class DatabaseHandler {
 
 		try (Connection connection = connectionPool.getConnection()) {
 			existingTables = getExistingTables(connection);
+
+			if (!existingTables.contains(DBConstants.TBL_NAME_UPDATES))
+				createUpdatesTable(connection);
 
 			if (!existingTables.contains(DBConstants.TBL_NAME_USER))
 				createUserTable(connection);
@@ -241,6 +246,52 @@ public class DatabaseHandler {
 		}
 		catch (SQLException sqlex) {
 			LOGGER.error("An error occurred while creating the settings table.", sqlex);
+		}
+	}
+
+
+	private void createUpdatesTable(final Connection connection) throws SQLException {
+		final StringBuilder queryBuilder;
+
+		if (connection == null || connection.isClosed())
+			throw new IllegalStateException(NO_CONNECTION);
+
+		queryBuilder = new StringBuilder();
+
+		try (Statement statement = connection.createStatement()) {
+			queryBuilder.append("CREATE TABLE IF NOT EXISTS ")
+			            .append(DBConstants.TBL_NAME_UPDATES)
+			            .append("(").append(DBConstants.COL_NAME_TABLE_NAME).append(" VARCHAR(255) PRIMARY KEY, ")
+			            .append(DBConstants.COL_NAME_LAST_UPDATE).append(" TIMESTAMP WITH TIME ZONE NOT NULL);");
+
+			statement.executeUpdate(queryBuilder.toString());
+		}
+		catch (SQLException sqlex) {
+			LOGGER.error("An error occurred while creating the updates table.", sqlex);
+		}
+	}
+
+
+	public void storeUpdate(final Update update) throws SQLException {
+		final StringBuilder queryBuilder;
+
+		if (update == null)
+			throw new IllegalArgumentException("The update object must not be null.");
+
+		try (Connection connection = connectionPool.getConnection()) {
+			queryBuilder = new StringBuilder();
+			queryBuilder.append("MERGE INTO ").append(DBConstants.TBL_NAME_UPDATES).append(" VALUES(?,?);");
+
+			try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString())) {
+				statement.setString(1, update.getTableName());
+				statement.setObject(2, TimeUtils.createTimestamp(update.getLastUpdateUTC()));
+
+				if (1 != statement.executeUpdate())
+					LOGGER.warn("Could not store the update for table '{}'.", update.getTableName());
+			}
+			catch (SQLException sqlex) {
+				LOGGER.error("Could not store the update for table '{}'.", update.getTableName(), sqlex);
+			}
 		}
 	}
 
