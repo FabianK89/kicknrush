@@ -14,6 +14,7 @@ public final class DBConstants {
 	public static final String TBL_NAME_SETTINGS = "USER_SETTINGS";
 	public static final String TBL_NAME_UPDATES  = "LAST_UPDATES";
 	public static final String TBL_NAME_USER     = "USER";
+	public static final String TBL_NAME_TEAM     = "TEAMS";
 
 
 	private DBConstants() {}

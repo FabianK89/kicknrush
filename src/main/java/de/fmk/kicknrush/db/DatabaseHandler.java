@@ -1,9 +1,11 @@
 package de.fmk.kicknrush.db;
 
-import de.fmk.kicknrush.helper.TimeUtils;
+import de.fmk.kicknrush.db.table.TeamTable;
+import de.fmk.kicknrush.db.table.UpdateTable;
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.SettingCache;
 import de.fmk.kicknrush.helper.cache.SettingCacheKey;
+import de.fmk.kicknrush.models.pojo.Team;
 import de.fmk.kicknrush.models.pojo.Update;
 import de.fmk.kicknrush.models.pojo.User;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -32,10 +34,14 @@ public class DatabaseHandler {
 	private static final String WHERE           = " WHERE ";
 
 	private final BasicDataSource connectionPool;
+	private final TeamTable       teamTable;
+	private final UpdateTable     updateTable;
 
 
 	public DatabaseHandler(Properties properties) {
 		connectionPool = new BasicDataSource();
+		teamTable      = new TeamTable();
+		updateTable    = new UpdateTable();
 
 		if (properties == null)
 			throw new IllegalArgumentException("Properties must not be null.");
@@ -55,17 +61,64 @@ public class DatabaseHandler {
 		try (Connection connection = connectionPool.getConnection()) {
 			existingTables = getExistingTables(connection);
 
-			if (!existingTables.contains(DBConstants.TBL_NAME_UPDATES))
-				createUpdatesTable(connection);
+			if (!existingTables.contains(updateTable.getName()))
+				updateTable.create(connection);
 
 			if (!existingTables.contains(DBConstants.TBL_NAME_USER))
 				createUserTable(connection);
 
 			if (!existingTables.contains(DBConstants.TBL_NAME_SETTINGS))
 				createSettingsTable(connection);
+
+			if (!existingTables.contains(teamTable.getName()))
+				teamTable.create(connection);
 		}
 		catch (SQLException sqlex) {
 			LOGGER.error("An error occurred while connecting to the database.", sqlex);
+		}
+	}
+
+
+	public boolean insertOrUpdateTeam(final Team team) {
+		try (Connection connection = connectionPool.getConnection()) {
+			return teamTable.merge(connection, team);
+		}
+		catch (SQLException sqlex) {
+			LOGGER.error("An error occurred while updating the team '{}'.", team.getTeamName(), sqlex);
+			return false;
+		}
+	}
+
+
+	public List<Team> selectAllTeams() {
+		try (Connection connection = connectionPool.getConnection()) {
+			return teamTable.selectAll(connection);
+		}
+		catch (SQLException sqlex) {
+			LOGGER.error("An error occurred while selecting all entries of the teams table.", sqlex);
+			return Collections.emptyList();
+		}
+	}
+
+
+	public List<Update> selectAllUpdates() {
+		try (Connection connection = connectionPool.getConnection()) {
+			return updateTable.selectAll(connection);
+		}
+		catch (SQLException sqlex) {
+			LOGGER.error("An error occurred while selecting all entries of the updates table.", sqlex);
+			return Collections.emptyList();
+		}
+	}
+
+
+	public boolean storeUpdate(final Update update) {
+		try (Connection connection = connectionPool.getConnection()) {
+			return updateTable.merge(connection, update);
+		}
+		catch (SQLException sqlex) {
+			LOGGER.error("An error occurred while storing the update of table '{}'.", update.getTableName(), sqlex);
+			return false;
 		}
 	}
 
@@ -268,30 +321,6 @@ public class DatabaseHandler {
 		}
 		catch (SQLException sqlex) {
 			LOGGER.error("An error occurred while creating the updates table.", sqlex);
-		}
-	}
-
-
-	public void storeUpdate(final Update update) throws SQLException {
-		final StringBuilder queryBuilder;
-
-		if (update == null)
-			throw new IllegalArgumentException("The update object must not be null.");
-
-		try (Connection connection = connectionPool.getConnection()) {
-			queryBuilder = new StringBuilder();
-			queryBuilder.append("MERGE INTO ").append(DBConstants.TBL_NAME_UPDATES).append(" VALUES(?,?);");
-
-			try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString())) {
-				statement.setString(1, update.getTableName());
-				statement.setObject(2, TimeUtils.createTimestamp(update.getLastUpdateUTC()));
-
-				if (1 != statement.executeUpdate())
-					LOGGER.warn("Could not store the update for table '{}'.", update.getTableName());
-			}
-			catch (SQLException sqlex) {
-				LOGGER.error("Could not store the update for table '{}'.", update.getTableName(), sqlex);
-			}
 		}
 	}
 
