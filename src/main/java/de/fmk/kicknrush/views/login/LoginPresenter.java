@@ -14,11 +14,8 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -49,6 +46,7 @@ public class LoginPresenter implements INotificationPresenter, Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		this.resources = new UTF8Resources(resources);
 
+		model.checkForUpdates();
 		model.loadSettings();
 
 		model.statusProperty().addListener((observable, oldStatus, newStatus) -> {

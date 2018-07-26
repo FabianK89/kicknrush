@@ -2,13 +2,15 @@ package de.fmk.kicknrush.models.login;
 
 import de.fmk.kicknrush.db.DatabaseHandler;
 import de.fmk.kicknrush.helper.ApplicationHelper;
+import de.fmk.kicknrush.helper.ThreadHelper;
+import de.fmk.kicknrush.helper.UpdateHelper;
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.UserCache;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.models.pojo.User;
-import de.fmk.kicknrush.service.RestService;
 import de.fmk.kicknrush.security.PasswordUtils;
+import de.fmk.kicknrush.service.RestService;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -39,6 +41,10 @@ public class LoginModel {
 	private DatabaseHandler   dbHandler;
 	@Inject
 	private RestService       restService;
+	@Inject
+	private ThreadHelper      threadHelper;
+	@Inject
+	private UpdateHelper      updateHelper;
 
 	private ObjectProperty<Status> status;
 
@@ -52,6 +58,16 @@ public class LoginModel {
 	public ObjectProperty<Status> statusProperty()
 	{
 		return status;
+	}
+
+
+	public void checkForUpdates() {
+		final Thread updateThread;
+
+		updateThread = new Thread(() -> updateHelper.checkForUpdates());
+
+		threadHelper.addThread(updateThread);
+		updateThread.start();
 	}
 
 
