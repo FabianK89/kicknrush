@@ -2,6 +2,7 @@ package de.fmk.kicknrush.service;
 
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
+import de.fmk.kicknrush.models.pojo.Team;
 import de.fmk.kicknrush.models.pojo.Update;
 import de.fmk.kicknrush.models.pojo.User;
 import javafx.collections.FXCollections;
@@ -11,7 +12,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -157,10 +157,25 @@ public class RestService
 	}
 
 
+	public List<Team> getTeams() {
+		final Team[] teams;
+
+		teams = restTemplate.getForObject(baseUrl.concat("/league/getTeams"), Team[].class);
+
+		if (teams == null)
+			return Collections.emptyList();
+
+		return Arrays.asList(teams);
+	}
+
+
 	public List<Update> getUpdates() {
 		final Update[] updates;
 
 		updates = restTemplate.getForObject(baseUrl.concat("/updates/getAll"), Update[].class);
+
+		if (updates == null)
+			return Collections.emptyList();
 
 		return Arrays.asList(updates);
 	}
