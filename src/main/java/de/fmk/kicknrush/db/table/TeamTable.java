@@ -82,7 +82,7 @@ public class TeamTable extends AbstractTable<Integer, Team> {
 
 		try (Statement statement = connection.createStatement()) {
 			try (ResultSet rs = statement.executeQuery(getSelectAllQuery())) {
-				if (rs.next())
+				while (rs.next())
 					teams.add(new Team(rs.getInt(COLUMN.TEAM_ID.getValue()),
 					                   rs.getString(COLUMN.ICON.getValue()),
 					                   rs.getString(COLUMN.ICON_SMALL.getValue()),

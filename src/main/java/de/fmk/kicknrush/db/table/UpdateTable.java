@@ -85,7 +85,7 @@ public class UpdateTable extends AbstractTable<String, Update> {
 
 		try (Statement statement = connection.createStatement()) {
 			try (ResultSet rs = statement.executeQuery(getSelectAllQuery())) {
-				if (rs.next()) {
+				while (rs.next()) {
 					final LocalDateTime         time;
 					final String                timeString;
 					final TimestampWithTimeZone timestamp;
