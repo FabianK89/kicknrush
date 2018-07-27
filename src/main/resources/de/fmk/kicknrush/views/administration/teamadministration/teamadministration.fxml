@@ -11,7 +11,6 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 
-
 <GridPane hgap="10.0" vgap="5.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.fmk.kicknrush.views.administration.teamadministration.TeamAdministrationPresenter">
    <rowConstraints>
       <RowConstraints vgrow="NEVER" />
@@ -22,9 +21,9 @@
       <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
    </columnConstraints>
    <children>
-      <ListView GridPane.rowIndex="1" />
+      <ListView fx:id="teamList" GridPane.rowIndex="1" />
       <Label text="%team.administration" />
-      <GridPane GridPane.columnIndex="1" GridPane.rowIndex="1">
+      <GridPane fx:id="detailPane" GridPane.columnIndex="1" GridPane.rowIndex="1">
         <columnConstraints>
           <ColumnConstraints hgrow="ALWAYS" />
           <ColumnConstraints hgrow="NEVER" />
@@ -41,28 +40,28 @@
             <RowConstraints vgrow="NEVER" />
         </rowConstraints>
          <children>
-            <Label text="Label" />
-            <TextField GridPane.rowIndex="1" />
-            <Label text="Label" GridPane.rowIndex="2">
+            <Label text="%team.name" />
+            <TextField fx:id="nameInput" GridPane.rowIndex="1" />
+            <Label text="%team.small.icon" GridPane.rowIndex="2">
                <GridPane.margin>
                   <Insets top="5.0" />
                </GridPane.margin>
             </Label>
-            <TextField GridPane.rowIndex="3" />
-            <Button mnemonicParsing="false" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <ImageView fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="4" />
-            <Label text="Label" GridPane.rowIndex="5">
+            <TextField fx:id="smallIconPathInput" GridPane.rowIndex="3" />
+            <Button mnemonicParsing="false" onAction="#onChooseSmallIcon" text="%btn.choose" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <ImageView fx:id="smallIcon" fitHeight="40.0" fitWidth="40.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="4" />
+            <Label text="%team.icon" GridPane.rowIndex="5">
                <GridPane.margin>
                   <Insets top="5.0" />
                </GridPane.margin>
             </Label>
-            <TextField GridPane.rowIndex="6" />
-            <Button mnemonicParsing="false" text="Button" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-            <ImageView fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="7" />
+            <TextField fx:id="iconPathInput" GridPane.rowIndex="6" />
+            <Button mnemonicParsing="false" onAction="#onChooseIcon" text="%btn.choose" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+            <ImageView fx:id="icon" fitHeight="80.0" fitWidth="80.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="7" />
             <HBox GridPane.columnSpan="2147483647" GridPane.rowIndex="8">
                <children>
-                  <Button mnemonicParsing="false" text="Button" />
-                  <Button mnemonicParsing="false" text="Button" />
+                  <Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSave" text="%btn.save" />
+                  <Button fx:id="cancelButton" mnemonicParsing="false" onAction="#onCancel" text="%btn.cancel" />
                </children>
                <GridPane.margin>
                   <Insets top="5.0" />
