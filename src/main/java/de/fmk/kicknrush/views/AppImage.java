@@ -6,7 +6,8 @@ package de.fmk.kicknrush.views;
 public enum AppImage {
 	CONNECTION_PROBLEM("notification_connection_problem.png"),
 	LOADING("loading.gif"),
-	LOGIN_FAILED("notification_login_failed.png");
+	LOGIN_FAILED("notification_login_failed.png"),
+	SUCCESS("notification_success.png");
 
 
 	private String name;

@@ -47,6 +47,7 @@ public class ApplicationHelper {
 		id           = pane.getId();
 
 		primaryStage.setScene(new Scene(root));
+		primaryStage.getScene().getStylesheets().add(App.class.getResource("notificationpane.css").toExternalForm());
 
 		if ("mainPane".equals(id)) {
 			primaryStage.setHeight(cache.getDoubleValue(SettingCacheKey.WINDOW_HEIGHT, pane.getHeight()));

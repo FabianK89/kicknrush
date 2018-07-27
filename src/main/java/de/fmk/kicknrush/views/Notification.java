@@ -43,6 +43,15 @@ public class Notification extends NotificationPane {
 	}
 
 
+	public void showSuccess(final String text, final AppImage image) {
+		removeStyleClasses();
+		getStyleClass().add(STYLE_BLACK);
+		setCloseButtonVisible(false);
+		setGraphic(initContent(text, image.getName()));
+		show();
+	}
+
+
 	public void showWarning(final String text, final AppImage image) {
 		removeStyleClasses();
 		getStyleClass().add(STYLE_WARNING);
