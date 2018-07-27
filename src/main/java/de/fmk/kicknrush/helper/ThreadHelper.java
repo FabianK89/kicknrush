@@ -38,6 +38,12 @@ public class ThreadHelper {
 	}
 
 
+	public void removeThread(String threadName) {
+		if (threads.remove(threadName) != null)
+			LOGGER.info("Thread '{}' has finished his job.", threadName);
+	}
+
+
 	public void stopAllThreads() {
 		LOGGER.info("Interrupt all existing threads.");
 
