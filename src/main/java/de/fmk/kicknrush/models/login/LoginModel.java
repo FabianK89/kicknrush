@@ -147,12 +147,12 @@ public class LoginModel {
 					}
 				}
 
-				cache.putStringValue(UserCacheKey.USER_ID, user.getId());
+				cache.putStringValue(UserCacheKey.USER_ID, user.getId().toString());
 				cache.putStringValue(UserCacheKey.USERNAME, user.getUsername());
 				cache.putBooleanValue(UserCacheKey.IS_ADMIN, user.isAdmin());
 				cache.putStringValue(UserCacheKey.PASSWORD, user.getPassword());
 				cache.putStringValue(UserCacheKey.SALT, user.getSalt());
-				cache.putStringValue(UserCacheKey.SESSION, user.getSessionID());
+				cache.putStringValue(UserCacheKey.SESSION, user.getSessionID().toString());
 				Platform.runLater(() -> status.set(Status.SUCCESS));
 			}
 			else {

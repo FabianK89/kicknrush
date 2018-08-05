@@ -181,7 +181,7 @@ public class DatabaseHandler {
 						id   = result.getObject(DBConstants.COL_NAME_ID);
 
 						if (id instanceof UUID)
-							user.setId(((UUID) id).toString());
+							user.setId(((UUID) id));
 						else
 							return null;
 
@@ -265,7 +265,7 @@ public class DatabaseHandler {
 			queryBuilder.append("MERGE INTO ").append(DBConstants.TBL_NAME_USER).append(" VALUES(?,?,?,?,?);");
 
 			try (PreparedStatement statement = connection.prepareStatement(queryBuilder.toString())) {
-				statement.setObject(1, UUID.fromString(user.getId()));
+				statement.setObject(1, user.getId());
 				statement.setString(2, user.getUsername());
 				statement.setString(3, user.getPassword());
 				statement.setString(4, user.getSalt());

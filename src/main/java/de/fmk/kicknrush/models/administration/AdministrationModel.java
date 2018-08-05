@@ -47,7 +47,7 @@ public class AdministrationModel extends AbstractStatusModel {
 	public User createUser(final String name) {
 		final User user = new User();
 
-		user.setId(UUID.randomUUID().toString());
+		user.setId(UUID.randomUUID());
 		user.setUsername(name);
 
 		users.add(user);

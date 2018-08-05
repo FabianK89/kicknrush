@@ -7,6 +7,7 @@ import de.fmk.kicknrush.models.Status;
 import de.fmk.kicknrush.service.RestService;
 import de.fmk.kicknrush.security.PasswordUtils;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -30,7 +31,7 @@ public class UserSettingsModel extends AbstractStatusModel {
 
 	@PostConstruct
 	public void init() {
-		usernames = restService.getUsernames();
+		usernames = FXCollections.observableArrayList(restService.getUsernames());
 		usernames.remove(cacheProvider.getUserCache().getStringValue(UserCacheKey.USERNAME));
 	}
 

@@ -2,6 +2,7 @@ package de.fmk.kicknrush.service;
 
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
+import de.fmk.kicknrush.models.dto.UserDTO;
 import de.fmk.kicknrush.models.pojo.Team;
 import de.fmk.kicknrush.models.pojo.Update;
 import de.fmk.kicknrush.models.pojo.User;
@@ -42,20 +43,18 @@ public class RestService
 
 
 	public User loginUser(final String username, final String password) {
-		final Map<String, String>  uriVariables;
-		final ResponseEntity<User> response;
+		final ResponseEntity<UserDTO> response;
+		final UserDTO                 body;
 
-		uriVariables = new HashMap<>();
-		uriVariables.put("username", username);
-		uriVariables.put("password", password);
+		body = new UserDTO();
+		body.setUsername(username);
+		body.setPassword(password);
 
 		try {
-			response = restTemplate.getForEntity(baseUrl.concat("/user/login?username={username}&password={password}"),
-			                                     User.class,
-			                                     uriVariables);
+			response = restTemplate.postForEntity(baseUrl.concat("/user/login"), body, UserDTO.class);
 
 			if (HttpStatus.OK == response.getStatusCode())
-				return response.getBody();
+				return User.fromDTO(response.getBody());
 		}
 		catch (HttpClientErrorException hceex) {
 			return null;
@@ -66,18 +65,19 @@ public class RestService
 
 
 	public boolean logout() {
-		final Map<String, String>    uriVariables;
 		final ResponseEntity<String> response;
+		final UserDTO                body;
 
-		uriVariables = new HashMap<>();
-		uriVariables.put("userID", cacheProvider.getUserCache().getStringValue(UserCacheKey.USER_ID));
+		body = new UserDTO();
+		body.setSessionID(cacheProvider.getUserCache().getStringValue(UserCacheKey.SESSION));
+		body.setUserID(cacheProvider.getUserCache().getStringValue(UserCacheKey.USER_ID));
 
 		try {
-			response = restTemplate.getForEntity(baseUrl.concat("/user/logout?userID={userID}"), String.class, uriVariables);
+			response = restTemplate.postForEntity(baseUrl.concat("/user/logout"), body, String.class);
 
 			return HttpStatus.OK == response.getStatusCode();
 		}
-		catch (HttpServerErrorException hseex) {
+		catch (HttpClientErrorException hceex) {
 			return false;
 		}
 	}
@@ -140,17 +140,24 @@ public class RestService
 
 
 	public List<String> getUsernames() {
-		final List<String>         usernames;
-		final ResponseEntity<List> response;
+		final Map<String, String>      uriVariables;
+		final List<String>             usernames;
+		final ResponseEntity<String[]> response;
+
+		uriVariables = new HashMap<>();
+		uriVariables.put("sessionID", cacheProvider.getUserCache().getStringValue(UserCacheKey.SESSION));
+		uriVariables.put("userID", cacheProvider.getUserCache().getStringValue(UserCacheKey.USER_ID));
 
 		usernames = new ArrayList<>();
-		response  = restTemplate.getForEntity(baseUrl.concat("/user/getUsernames"), List.class);
+		response  = restTemplate.getForEntity(baseUrl.concat("/user/getUsernames?sessionID={sessionID}&userID={userID}"),
+		                                      String[].class,
+		                                      uriVariables);
 
 		if (HttpStatus.OK == response.getStatusCode()) {
-			for (final Object object : response.getBody()) {
-				if (object instanceof String)
-					usernames.add((String) object);
-			}
+			if (response.getBody() == null || response.getBody().length == 0)
+				return usernames;
+
+			return Arrays.asList(response.getBody());
 		}
 
 		return usernames;

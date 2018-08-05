@@ -70,7 +70,7 @@ public class MatchesModel extends AbstractStatusModel {
 	}
 
 
-	public void startThread() {
+	public synchronized void startThread() {
 		if (!currentTimeThread.isAlive()) {
 			threadHelper.addThread(currentTimeThread);
 			stopThreadProperty.set(false);
