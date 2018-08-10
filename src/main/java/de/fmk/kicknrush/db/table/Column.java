@@ -1,16 +1,20 @@
 package de.fmk.kicknrush.db.table;
 
+import lombok.Getter;
+
+
 /**
  * @author FabianK
  */
+@Getter
 public class Column {
-	private String constraint;
-	private String name;
-	private String type;
+	private CONSTRAINT constraint;
+	private String     name;
+	private TYPE       type;
 
 
 	Column() {
-		constraint = null;
+		constraint = CONSTRAINT.NONE;
 		name       = null;
 		type       = null;
 	}
@@ -30,7 +34,7 @@ public class Column {
 		if (this.type != null)
 			throw new IllegalStateException("The type is already set.");
 
-		this.type = type.getValue();
+		this.type = type;
 
 		return this;
 	}
@@ -40,9 +44,20 @@ public class Column {
 		if (this.constraint != null)
 			throw new IllegalStateException("The constraint is already set.");
 
-		this.constraint = constraint.getValue();
+		this.constraint = constraint;
 
 		return this;
+	}
+
+
+	String toString(boolean multiplePrimaryKeys) {
+		if (!multiplePrimaryKeys)
+			return toString();
+
+		if (name == null || type == null)
+			throw new IllegalStateException("Name or type is missing.");
+
+		return name.concat(" ").concat(type.getValue());
 	}
 
 
@@ -51,6 +66,6 @@ public class Column {
 		if (name == null || type == null)
 			throw new IllegalStateException("Name or type is missing.");
 
-		return name.concat(" ").concat(type).concat(" ").concat(constraint);
+		return name.concat(" ").concat(type.getValue()).concat(" ").concat(constraint.getValue());
 	}
 }

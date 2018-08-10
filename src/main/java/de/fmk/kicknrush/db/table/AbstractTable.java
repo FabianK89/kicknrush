@@ -23,19 +23,42 @@ public abstract class AbstractTable<K, V> implements ITable<K, V> {
 
 	String getCreationQuery(final Column[] columns) {
 		final StringBuilder builder;
+		final StringBuilder primaryKeyBuilder;
 
 		if (columns == null || columns.length == 0)
 			throw new IllegalArgumentException("There must be columns for the table.");
+
+		if (hasMultiplePrimaryKeys(columns))
+			primaryKeyBuilder = new StringBuilder(" PRIMARY KEY(");
+		else
+			primaryKeyBuilder = null;
 
 		builder = new StringBuilder("CREATE TABLE IF NOT EXISTS ");
 		builder.append(tableName);
 		builder.append("(");
 
 		for (int i = 0; i < columns.length; i++) {
-			builder.append(columns[i].toString());
+			final Column column = columns[i];
+
+			if (primaryKeyBuilder == null || column.getConstraint() != CONSTRAINT.PRIMARY_KEY) {
+				builder.append(column.toString());
+			}
+			else {
+				builder.append(column.toString(true));
+
+				if (!primaryKeyBuilder.toString().endsWith("("))
+					primaryKeyBuilder.append(", ");
+
+				primaryKeyBuilder.append(column.getName());
+			}
 
 			if (i + 1 < columns.length)
 				builder.append(", ");
+		}
+
+		if (primaryKeyBuilder != null) {
+			primaryKeyBuilder.append(")");
+			builder.append(primaryKeyBuilder.toString());
 		}
 
 		builder.append(");");
@@ -71,5 +94,17 @@ public abstract class AbstractTable<K, V> implements ITable<K, V> {
 		builder.append(tableName);
 
 		return builder.toString();
+	}
+
+
+	private boolean hasMultiplePrimaryKeys(final Column[] columns) {
+		int primaryKeys = 0;
+
+		for (final Column column : columns) {
+			if (column.getConstraint() == CONSTRAINT.PRIMARY_KEY)
+				primaryKeys++;
+		}
+
+		return primaryKeys > 1;
 	}
 }

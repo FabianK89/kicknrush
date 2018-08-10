@@ -7,8 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
-
 
 /**
  * @author FabianK
@@ -19,11 +17,9 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @ToString
 @EqualsAndHashCode
-public class Match {
-	private boolean       finished;
-	private int           id;
-	private Group         group;
-	private LocalDateTime kickOff;
-	private Team          guestTeam;
-	private Team          homeTeam;
+public class Group {
+	private int    groupID;
+	private int    groupOrderID;
+	private int    year;
+	private String groupName;
 }

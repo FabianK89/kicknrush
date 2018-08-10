@@ -55,15 +55,15 @@ public class TeamTable extends AbstractTable<Integer, Team> {
 	public void create(Connection connection) throws SQLException {
 		final Column[] columns;
 
+		if (connection == null || connection.isClosed())
+			throw new IllegalStateException(NO_CONNECTION);
+
 		columns = new Column[] {
 				new Column().name(COLUMN.TEAM_ID.getValue()).type(TYPE.INTEGER).constraint(CONSTRAINT.PRIMARY_KEY),
 				new Column().name(COLUMN.TEAM_NAME.getValue()).type(TYPE.VARCHAR255).constraint(CONSTRAINT.NOT_NULL),
 				new Column().name(COLUMN.ICON_SMALL.getValue()).type(TYPE.VARCHAR255).constraint(CONSTRAINT.NOT_NULL),
 				new Column().name(COLUMN.ICON.getValue()).type(TYPE.VARCHAR255).constraint(CONSTRAINT.NOT_NULL)
 		};
-
-		if (connection == null || connection.isClosed())
-			throw new IllegalStateException(NO_CONNECTION);
 
 		try (Statement statement = connection.createStatement()) {
 			statement.executeUpdate(getCreationQuery(columns));

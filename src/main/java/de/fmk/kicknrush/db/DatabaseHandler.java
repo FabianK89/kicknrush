@@ -1,5 +1,7 @@
 package de.fmk.kicknrush.db;
 
+import de.fmk.kicknrush.db.table.GroupTable;
+import de.fmk.kicknrush.db.table.MatchTable;
 import de.fmk.kicknrush.db.table.TeamTable;
 import de.fmk.kicknrush.db.table.UpdateTable;
 import de.fmk.kicknrush.helper.cache.CacheProvider;
@@ -34,12 +36,16 @@ public class DatabaseHandler {
 	private static final String WHERE           = " WHERE ";
 
 	private final BasicDataSource connectionPool;
+	private final GroupTable      groupTable;
+	private final MatchTable      matchTable;
 	private final TeamTable       teamTable;
 	private final UpdateTable     updateTable;
 
 
 	public DatabaseHandler(Properties properties) {
 		connectionPool = new BasicDataSource();
+		groupTable     = new GroupTable();
+		matchTable     = new MatchTable();
 		teamTable      = new TeamTable();
 		updateTable    = new UpdateTable();
 
@@ -72,6 +78,12 @@ public class DatabaseHandler {
 
 			if (!existingTables.contains(teamTable.getName()))
 				teamTable.create(connection);
+
+			if (!existingTables.contains(groupTable.getName()))
+				groupTable.create(connection);
+
+			if (!existingTables.contains(matchTable.getName()))
+				matchTable.create(connection);
 		}
 		catch (SQLException sqlex) {
 			LOGGER.error("An error occurred while connecting to the database.", sqlex);

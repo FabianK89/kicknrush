@@ -6,13 +6,11 @@ import de.fmk.kicknrush.models.dto.UserDTO;
 import de.fmk.kicknrush.models.pojo.Team;
 import de.fmk.kicknrush.models.pojo.Update;
 import de.fmk.kicknrush.models.pojo.User;
-import javafx.collections.FXCollections;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -104,33 +102,30 @@ public class RestService
 
 
 	public boolean deleteUser(final User user) {
-		final MultiValueMap<String, Object> values;
-		final ResponseEntity<Boolean>       response;
+		final ResponseEntity<String> response;
+		final UserDTO                 body;
 
-		values = new LinkedMultiValueMap<>();
-		values.add(UserCacheKey.SESSION.getKey(), cacheProvider.getUserCache().getStringValue(UserCacheKey.SESSION));
-		values.add(UserCacheKey.USER_ID.getKey(), user.getId());
+		body = user.toDTO();
+		body.setSessionID(cacheProvider.getUserCache().getStringValue(UserCacheKey.SESSION));
 
-		response = restTemplate.postForEntity(baseUrl.concat("/user/admin/deleteUser"), values, Boolean.class);
+		response = restTemplate.postForEntity(baseUrl.concat("/user/admin/deleteUser"), body, String.class);
 
-		if (HttpStatus.OK == response.getStatusCode())
-			return response.getBody();
-
-		return false;
+		return HttpStatus.OK == response.getStatusCode();
 	}
 
 
 	public boolean updateUser(final String username, final String password, final String salt) {
-		final MultiValueMap<String, Object> values;
-		final ResponseEntity<Boolean>       response;
+		final ResponseEntity<Boolean> response;
+		final UserDTO                 body;
 
-		values = new LinkedMultiValueMap<>();
-		values.add(UserCacheKey.SESSION.getKey(), cacheProvider.getUserCache().getStringValue(UserCacheKey.SESSION));
-		values.add(UserCacheKey.USERNAME.getKey(), username);
-		values.add(UserCacheKey.PASSWORD.getKey(), password);
-		values.add(UserCacheKey.SALT.getKey(), salt);
+		body = new UserDTO();
+		body.setSessionID(cacheProvider.getUserCache().getStringValue(UserCacheKey.SESSION));
+		body.setUserID(cacheProvider.getUserCache().getStringValue(UserCacheKey.USER_ID));
+		body.setUsername(username);
+		body.setPassword(password);
+		body.setSalt(salt);
 
-		response = restTemplate.postForEntity(baseUrl.concat("/user/updateUser"), values, Boolean.class);
+		response = restTemplate.postForEntity(baseUrl.concat("/user/updateUser"), body, Boolean.class);
 
 		if (HttpStatus.OK == response.getStatusCode())
 			return response.getBody();
@@ -189,13 +184,22 @@ public class RestService
 
 
 	public List<User> getUsers() {
-		final ResponseEntity<User[]> response;
+		final List<User>                result;
+		final Map<String, String>       uriVariables;
+		final ResponseEntity<UserDTO[]> response;
 
-		response = restTemplate.getForEntity(baseUrl.concat("/user/getUsers"), User[].class);
+		uriVariables = new HashMap<>();
+		uriVariables.put("sessionID", cacheProvider.getUserCache().getStringValue(UserCacheKey.SESSION));
+		uriVariables.put("userID", cacheProvider.getUserCache().getStringValue(UserCacheKey.USER_ID));
 
-		if (HttpStatus.OK == response.getStatusCode())
-			return FXCollections.observableArrayList(response.getBody());
+		response = restTemplate.getForEntity(baseUrl.concat("/user/getUsers"), UserDTO[].class, uriVariables);
+		result   = new ArrayList<>();
 
-		return Collections.emptyList();
+		if (HttpStatus.OK == response.getStatusCode() && response.getBody() != null) {
+			for (final UserDTO dto : response.getBody())
+				result.add(User.fromDTO(dto));
+		}
+
+		return result;
 	}
 }

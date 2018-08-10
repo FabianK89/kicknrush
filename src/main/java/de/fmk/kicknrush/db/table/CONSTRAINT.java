@@ -5,7 +5,7 @@ package de.fmk.kicknrush.db.table;
  */
 public enum CONSTRAINT
 {
-	NOT_NULL("NOT NULL"), PRIMARY_KEY("PRIMARY KEY"), UNIQUE("UNIQUE");
+	DEFAULT_FALSE("DEFAULT FALSE"), NONE(""), NOT_NULL("NOT NULL"), PRIMARY_KEY("PRIMARY KEY"), UNIQUE("UNIQUE");
 
 
 	private String value;

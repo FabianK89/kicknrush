@@ -51,4 +51,21 @@ public class User {
 
 		return user;
 	}
+
+
+	/**
+	 * Convert this object to an UserDTO.
+	 * @return the data transfer object.
+	 */
+	public UserDTO toDTO() {
+		final UserDTO dto = new UserDTO();
+
+		dto.setUserID(id.toString());
+		dto.setSessionID(sessionID == null ? null : sessionID.toString());
+		dto.setUsername(username);
+		dto.setAdmin(isAdmin);
+		dto.setSalt(salt);
+
+		return dto;
+	}
 }
