@@ -2,7 +2,9 @@ package de.fmk.kicknrush.service;
 
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
+import de.fmk.kicknrush.models.dto.MatchDTO;
 import de.fmk.kicknrush.models.dto.UserDTO;
+import de.fmk.kicknrush.models.pojo.Match;
 import de.fmk.kicknrush.models.pojo.Team;
 import de.fmk.kicknrush.models.pojo.Update;
 import de.fmk.kicknrush.models.pojo.User;
@@ -24,8 +26,10 @@ import java.util.List;
 import java.util.Map;
 
 
-public class RestService
-{
+/**
+ * @author FabianK
+ */
+public class RestService {
 	@Inject @Named(CacheProvider.CACHE_ID)
 	private CacheProvider cacheProvider;
 
@@ -201,5 +205,33 @@ public class RestService
 		}
 
 		return result;
+	}
+
+
+	public List<Match> getMatches() {
+		final List<Match>                matches;
+		final ResponseEntity<MatchDTO[]> response;
+		final UserDTO                    body;
+
+		body = new UserDTO();
+		body.setSessionID(cacheProvider.getUserCache().getStringValue(UserCacheKey.SESSION));
+		body.setUserID(cacheProvider.getUserCache().getStringValue(UserCacheKey.USER_ID));
+
+		matches = new ArrayList<>();
+
+		try {
+			response = restTemplate.postForEntity(baseUrl.concat("/league/getMatches"), body, MatchDTO[].class);
+
+			if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null)
+				return matches;
+
+			for (final MatchDTO dto : response.getBody())
+				matches.add(Match.fromDTO(dto));
+		}
+		catch (HttpClientErrorException hceex) {
+			return matches;
+		}
+
+		return matches;
 	}
 }
