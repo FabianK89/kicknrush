@@ -91,7 +91,7 @@ public class DatabaseHandler {
 	}
 
 
-	public boolean insertOrUpdateTeam(final Team team) {
+	public boolean mergeTeam(final Team team) {
 		try (Connection connection = connectionPool.getConnection()) {
 			return teamTable.merge(connection, team);
 		}

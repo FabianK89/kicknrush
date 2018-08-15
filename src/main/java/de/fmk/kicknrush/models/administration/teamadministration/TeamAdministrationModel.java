@@ -55,7 +55,7 @@ public class TeamAdministrationModel extends AbstractStatusModel {
 		statusProperty.set(Status.RUNNING);
 
 		thread = new Thread(() -> {
-			if (dbHandler.insertOrUpdateTeam(team))
+			if (dbHandler.mergeTeam(team))
 				Platform.runLater(() -> statusProperty().set(Status.SUCCESS));
 			else
 				Platform.runLater(() -> statusProperty().set(Status.FAILED));
