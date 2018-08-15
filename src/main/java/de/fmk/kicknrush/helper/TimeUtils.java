@@ -44,6 +44,11 @@ public class TimeUtils {
 	}
 
 
+	public static LocalDateTime createLocalDateTime(final String timeString) {
+		return convertTimestamp(createTimestamp(timeString));
+	}
+
+
 	public static LocalDateTime convertTimestamp(final TimestampWithTimeZone timestamp) {
 		final Instant instant;
 
