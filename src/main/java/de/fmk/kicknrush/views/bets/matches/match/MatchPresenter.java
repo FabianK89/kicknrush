@@ -56,8 +56,8 @@ public class MatchPresenter implements INotificationPresenter, Initializable {
 			throw new IllegalStateException("The model must be initialized first.");
 
 		kickOffLabel.setText(model.getKickOffTimeString());
-		guestTeamLabel.setText(model.getMatch().getGuestTeam());
-		homeTeamLabel.setText(model.getMatch().getHomeTeam());
+		guestTeamLabel.setText(model.getMatch().getGuestTeam().getTeamName());
+		homeTeamLabel.setText(model.getMatch().getHomeTeam().getTeamName());
 		guestBetInput.disableProperty().bind(model.betsClosedProperty());
 		homeBetInput.disableProperty().bind(model.betsClosedProperty());
 

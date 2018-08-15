@@ -16,4 +16,6 @@ public interface ITable<K, V> {
 	List<V> selectAll(Connection connection);
 
 	String getName();
+
+	void addColumn(Column column);
 }

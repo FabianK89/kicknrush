@@ -67,7 +67,7 @@ public class UpdateHelper {
 
 
 	private void update(final String tableName) {
-		if (TeamTable.NAME.equals(tableName))
-			restService.getTeams().forEach(team -> dbHandler.insertOrUpdateTeam(team));
+		if (TeamTable.TABLE_NAME.equals(tableName))
+			restService.getTeams().forEach(team -> dbHandler.mergeTeam(team));
 	}
 }

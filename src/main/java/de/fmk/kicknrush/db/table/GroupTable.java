@@ -16,11 +16,22 @@ import java.util.List;
 public class GroupTable extends AbstractTable<Integer, Group> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(GroupTable.class);
 
-	public static final String NAME = "GROUPS";
+	static final String TABLE_NAME = "GROUPS";
+
+	/* Column names */
+	static final String ID       = "GROUP_ID";
+	static final String NAME     = "GROUP_NAME";
+	static final String ORDER_ID = "GROUP_ORDER_ID";
+	static final String YEAR     = "YEAR";
 
 
 	public GroupTable() {
-		super(NAME);
+		super(TABLE_NAME);
+
+		addColumn(new Column(ID, TYPE.INTEGER, CONSTRAINT.PRIMARY_KEY));
+		addColumn(new Column(NAME, TYPE.VARCHAR255, CONSTRAINT.NOT_NULL));
+		addColumn(new Column(ORDER_ID, TYPE.INTEGER, CONSTRAINT.NOT_NULL));
+		addColumn(new Column(YEAR, TYPE.INTEGER, CONSTRAINT.NOT_NULL));
 	}
 
 
@@ -32,20 +43,11 @@ public class GroupTable extends AbstractTable<Integer, Group> {
 
 	@Override
 	public void create(Connection connection) throws SQLException {
-		final Column[] columns;
-
 		if (connection == null || connection.isClosed())
 			throw new IllegalStateException(NO_CONNECTION);
 
-		columns = new Column[] {
-				new Column().name(COLUMN.GROUP_ID.getValue()).type(TYPE.INTEGER).constraint(CONSTRAINT.PRIMARY_KEY),
-				new Column().name(COLUMN.GROUP_NAME.getValue()).type(TYPE.VARCHAR255).constraint(CONSTRAINT.NOT_NULL),
-				new Column().name(COLUMN.GROUP_ORDER_ID.getValue()).type(TYPE.INTEGER).constraint(CONSTRAINT.NOT_NULL),
-				new Column().name(COLUMN.YEAR.getValue()).type(TYPE.INTEGER).constraint(CONSTRAINT.NOT_NULL)
-		};
-
 		try (Statement statement = connection.createStatement()) {
-			statement.executeUpdate(getCreationQuery(columns));
+			statement.executeUpdate(getCreationQuery());
 		}
 		catch (SQLException sqlex) {
 			LOGGER.error("An error occurred while creating the groups table.", sqlex);
@@ -56,22 +58,5 @@ public class GroupTable extends AbstractTable<Integer, Group> {
 	@Override
 	public List<Group> selectAll(Connection connection) {
 		return null;
-	}
-
-
-	enum COLUMN {
-		GROUP_ID("GROUP_ID"), GROUP_NAME("GROUP_NAME"), GROUP_ORDER_ID("GROUP_ORDER_ID"), YEAR("YEAR");
-
-		private String value;
-
-
-		COLUMN(String value) {
-			this.value = value;
-		}
-
-
-		public String getValue() {
-			return value;
-		}
 	}
 }

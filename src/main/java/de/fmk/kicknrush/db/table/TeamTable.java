@@ -19,11 +19,22 @@ import java.util.List;
 public class TeamTable extends AbstractTable<Integer, Team> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(TeamTable.class);
 
-	public static final String NAME = "TEAM";
+	public static final String TABLE_NAME = "TEAM";
+
+	/* Column names */
+	static final String ID         = "TEAM_ID";
+	static final String NAME       = "TEAM_NAME";
+	static final String ICON       = "TEAM_ICON";
+	static final String ICON_SMALL = "TEAM_ICON_SMALL";
 
 
 	public TeamTable() {
-		super(NAME);
+		super(TABLE_NAME);
+
+		addColumn(new Column(ID, TYPE.INTEGER, CONSTRAINT.PRIMARY_KEY));
+		addColumn(new Column(NAME, TYPE.VARCHAR255, CONSTRAINT.NOT_NULL));
+		addColumn(new Column(ICON, TYPE.VARCHAR255, CONSTRAINT.NOT_NULL));
+		addColumn(new Column(ICON_SMALL, TYPE.VARCHAR255, CONSTRAINT.NOT_NULL));
 	}
 
 
@@ -32,7 +43,7 @@ public class TeamTable extends AbstractTable<Integer, Team> {
 		if (team == null)
 			throw new IllegalArgumentException("The team object must not be null.");
 
-		try (PreparedStatement statement = connection.prepareStatement(getMergeQuery(COLUMN.values().length))) {
+		try (PreparedStatement statement = connection.prepareStatement(getMergeQuery())) {
 			statement.setInt(1, team.getTeamId());
 			statement.setString(2, team.getTeamName());
 			statement.setString(3, team.getTeamIconUrlSmall());
@@ -53,20 +64,11 @@ public class TeamTable extends AbstractTable<Integer, Team> {
 
 	@Override
 	public void create(Connection connection) throws SQLException {
-		final Column[] columns;
-
 		if (connection == null || connection.isClosed())
 			throw new IllegalStateException(NO_CONNECTION);
 
-		columns = new Column[] {
-				new Column().name(COLUMN.TEAM_ID.getValue()).type(TYPE.INTEGER).constraint(CONSTRAINT.PRIMARY_KEY),
-				new Column().name(COLUMN.TEAM_NAME.getValue()).type(TYPE.VARCHAR255).constraint(CONSTRAINT.NOT_NULL),
-				new Column().name(COLUMN.ICON_SMALL.getValue()).type(TYPE.VARCHAR255).constraint(CONSTRAINT.NOT_NULL),
-				new Column().name(COLUMN.ICON.getValue()).type(TYPE.VARCHAR255).constraint(CONSTRAINT.NOT_NULL)
-		};
-
 		try (Statement statement = connection.createStatement()) {
-			statement.executeUpdate(getCreationQuery(columns));
+			statement.executeUpdate(getCreationQuery());
 		}
 		catch (SQLException sqlex) {
 			LOGGER.error("An error occurred while creating the teams table.", sqlex);
@@ -83,10 +85,10 @@ public class TeamTable extends AbstractTable<Integer, Team> {
 		try (Statement statement = connection.createStatement()) {
 			try (ResultSet rs = statement.executeQuery(getSelectAllQuery())) {
 				while (rs.next())
-					teams.add(new Team(rs.getInt(COLUMN.TEAM_ID.getValue()),
-					                   rs.getString(COLUMN.ICON.getValue()),
-					                   rs.getString(COLUMN.ICON_SMALL.getValue()),
-					                   rs.getString(COLUMN.TEAM_NAME.getValue())));
+					teams.add(new Team(rs.getInt(ID),
+					                   rs.getString(ICON),
+					                   rs.getString(ICON_SMALL),
+					                   rs.getString(NAME)));
 			}
 		}
 		catch (SQLException sqlex) {
@@ -94,22 +96,5 @@ public class TeamTable extends AbstractTable<Integer, Team> {
 		}
 
 		return teams;
-	}
-
-
-	private enum COLUMN {
-		ICON("TEAM_ICON"), ICON_SMALL("TEAM_ICON_SMALL"), TEAM_ID("TEAM_ID"), TEAM_NAME("TEAM_NAME");
-
-		private String value;
-
-
-		COLUMN(String value) {
-			this.value = value;
-		}
-
-
-		public String getValue() {
-			return value;
-		}
 	}
 }

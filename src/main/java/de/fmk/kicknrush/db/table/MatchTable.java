@@ -23,11 +23,27 @@ import java.util.List;
 public class MatchTable extends AbstractTable<Integer, Match> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MatchTable.class);
 
-	public static final String NAME = "MATCH";
+	private static final String G  = "G";
+	private static final String T1 = "T1";
+	private static final String T2 = "T2";
+
+	static final String GROUP   = "GROUP_ID";
+	static final String GUEST   = "TEAM_GUEST";
+	static final String HOME    = "TEAM_HOME";
+	static final String ID      = "MATCH_ID";
+	static final String KICKOFF = "KICKOFF";
+	static final String OVER    = "MATCH_OVER";
 
 
 	public MatchTable() {
-		super(NAME);
+		super("MATCH");
+
+		addColumn(new Column(ID, TYPE.INTEGER, CONSTRAINT.PRIMARY_KEY));
+		addColumn(new Column(GROUP, TYPE.INTEGER, CONSTRAINT.NOT_NULL));
+		addColumn(new Column(KICKOFF, TYPE.TIMESTAMP, CONSTRAINT.NONE));
+		addColumn(new Column(OVER, TYPE.BOOLEAN, CONSTRAINT.DEFAULT_FALSE));
+		addColumn(new Column(HOME, TYPE.INTEGER, CONSTRAINT.NOT_NULL));
+		addColumn(new Column(GUEST, TYPE.INTEGER, CONSTRAINT.NOT_NULL));
 	}
 
 
@@ -36,7 +52,7 @@ public class MatchTable extends AbstractTable<Integer, Match> {
 		if (match == null)
 			throw new IllegalArgumentException("The match object must not be null.");
 
-		try (PreparedStatement statement = connection.prepareStatement(getMergeQuery(COLUMN.values().length))) {
+		try (PreparedStatement statement = connection.prepareStatement(getMergeQuery())) {
 			statement.setInt(1, match.getId());
 			statement.setInt(2, match.getGroup().getGroupID());
 			statement.setObject(3, TimeUtils.createTimestamp(match.getKickOff()));
@@ -59,22 +75,11 @@ public class MatchTable extends AbstractTable<Integer, Match> {
 
 	@Override
 	public void create(Connection connection) throws SQLException {
-		final Column[] columns;
-
 		if (connection == null || connection.isClosed())
 			throw new IllegalStateException(NO_CONNECTION);
 
-		columns = new Column[] {
-				new Column().name(COLUMN.MATCH_ID.getValue()).type(TYPE.INTEGER).constraint(CONSTRAINT.PRIMARY_KEY),
-				new Column().name(COLUMN.GROUP_ID.getValue()).type(TYPE.INTEGER).constraint(CONSTRAINT.NOT_NULL),
-				new Column().name(COLUMN.KICKOFF.getValue()).type(TYPE.TIMESTAMP),
-				new Column().name(COLUMN.MATCH_OVER.getValue()).type(TYPE.BOOLEAN).constraint(CONSTRAINT.DEFAULT_FALSE),
-				new Column().name(COLUMN.TEAM_HOME.getValue()).type(TYPE.INTEGER).constraint(CONSTRAINT.NOT_NULL),
-				new Column().name(COLUMN.TEAM_GUEST.getValue()).type(TYPE.INTEGER).constraint(CONSTRAINT.NOT_NULL)
-		};
-
 		try (Statement statement = connection.createStatement()) {
-			statement.executeUpdate(getCreationQuery(columns));
+			statement.executeUpdate(getCreationQuery());
 		}
 		catch (SQLException sqlex) {
 			LOGGER.error("An error occurred while creating the matches table.", sqlex);
@@ -97,27 +102,27 @@ public class MatchTable extends AbstractTable<Integer, Match> {
 					final Team  teamHome;
 
 					group = new Group();
-					group.setGroupID(rs.getInt(COLUMN.GROUP_ID.getValue()));
-					group.setGroupName(rs.getString(GroupTable.COLUMN.GROUP_NAME.getValue()));
-					group.setGroupOrderID(rs.getInt(GroupTable.COLUMN.GROUP_ORDER_ID.getValue()));
-					group.setYear(rs.getInt(GroupTable.COLUMN.YEAR.getValue()));
+					group.setGroupID(rs.getInt(GROUP));
+					group.setGroupName(rs.getString(GroupTable.NAME));
+					group.setGroupOrderID(rs.getInt(GroupTable.ORDER_ID));
+					group.setYear(rs.getInt(GroupTable.YEAR));
 
 					teamHome = new Team();
-					teamHome.setTeamId(rs.getInt(COLUMN.TEAM_HOME.getValue()));
-					teamHome.setTeamName(rs.getString("T1_NAME"));
-					teamHome.setTeamIconUrl(rs.getString("T1_ICON"));
-					teamHome.setTeamIconUrlSmall(rs.getString("T1_ICON_SMALL"));
+					teamHome.setTeamId(rs.getInt(HOME));
+					teamHome.setTeamName(rs.getString(aliasColumn(T1, TeamTable.NAME)));
+					teamHome.setTeamIconUrl(rs.getString(aliasColumn(T1, TeamTable.ICON)));
+					teamHome.setTeamIconUrlSmall(rs.getString(aliasColumn(T1, TeamTable.ICON_SMALL)));
 
 					teamGuest = new Team();
-					teamGuest.setTeamId(rs.getInt(COLUMN.TEAM_GUEST.getValue()));
-					teamGuest.setTeamName(rs.getString("T2_NAME"));
-					teamGuest.setTeamIconUrl(rs.getString("T2_ICON"));
-					teamGuest.setTeamIconUrlSmall(rs.getString("T2_ICON_SMALL"));
+					teamGuest.setTeamId(rs.getInt(GUEST));
+					teamGuest.setTeamName(rs.getString(aliasColumn(T2, TeamTable.NAME)));
+					teamGuest.setTeamIconUrl(rs.getString(aliasColumn(T2, TeamTable.ICON)));
+					teamGuest.setTeamIconUrlSmall(rs.getString(aliasColumn(T2, TeamTable.ICON_SMALL)));
 
 					match = new Match();
-					match.setId(rs.getInt(COLUMN.MATCH_ID.getValue()));
-					match.setKickOff(TimeUtils.convertTimestamp((TimestampWithTimeZone) rs.getObject(COLUMN.KICKOFF.getValue())));
-					match.setFinished(rs.getBoolean(COLUMN.MATCH_OVER.getValue()));
+					match.setId(rs.getInt(ID));
+					match.setKickOff(TimeUtils.convertTimestamp((TimestampWithTimeZone) rs.getObject(KICKOFF)));
+					match.setFinished(rs.getBoolean(OVER));
 					match.setGroup(group);
 					match.setHomeTeam(teamHome);
 					match.setGuestTeam(teamGuest);
@@ -135,38 +140,37 @@ public class MatchTable extends AbstractTable<Integer, Match> {
 
 
 	private String selectAllQuery() {
-		return "SELECT m.*,"                                                                             +
-		       "g.GROUP_NAME, g.GROUP_ORDER_ID, g.YEAR, "                                                +
-		       "t1.TEAM_NAME AS T1_NAME, t1.TEAM_ICON AS T1_ICON, t1.TEAM_ICON_SMALL AS T1_ICON_SMALL, " +
-		       "t2.TEAM_NAME AS T2_NAME, t2.TEAM_ICON AS T2_ICON, t2.TEAM_ICON_SMALL AS T2_ICON_SMALL "  +
-		       "FROM " + NAME + " AS m "                                                                 +
-		       "JOIN " + GroupTable.NAME + " AS g "                                                      +
-		       "ON m.GROUP_ID = g.GROUP_ID "                                                             +
-		       "JOIN " + TeamTable.NAME + " AS t1 "                                                      +
-		       "ON m.TEAM_HOME = t1.TEAM_ID "                                                            +
-		       "JOIN " + TeamTable.NAME + " AS t2 "                                                      +
-		       "ON m.TEAM_GUEST = t2.TEAM_ID";
+		return "SELECT m.*,"                                                     +
+		       columns(G, GroupTable.NAME, GroupTable.ORDER_ID, GroupTable.YEAR) +
+		       columns(T1, TeamTable.NAME, TeamTable.ICON, TeamTable.ICON_SMALL) +
+		       columns(T2, TeamTable.NAME, TeamTable.ICON, TeamTable.ICON_SMALL) +
+		       ", FROM " + getName() + " AS m "                                  +
+		       join(GroupTable.TABLE_NAME, G, GROUP, GroupTable.ID)              +
+		       join(TeamTable.TABLE_NAME, T1, HOME, TeamTable.ID)                +
+		       join(TeamTable.TABLE_NAME, T2, GUEST, TeamTable.ID);
 	}
 
 
-	private enum COLUMN {
-		GROUP_ID("GROUP_ID"),
-		KICKOFF("KICKOFF"),
-		MATCH_ID("MATCH_ID"),
-		MATCH_OVER("MATCH_OVER"),
-		TEAM_GUEST("TEAM_GUEST"),
-		TEAM_HOME("TEAM_HOME");
-
-		private String value;
+	private String aliasColumn(String alias, String columnName) {
+		return alias.concat("_").concat(columnName);
+	}
 
 
-		COLUMN(String value) {
-			this.value = value;
+	private String columns(String alias, String... columns) {
+		StringBuilder s = new StringBuilder();
+
+		for (int i = 0; i < columns.length; i++) {
+			s.append(alias).append(".").append(columns[i]).append(" AS ").append(alias).append("_").append(columns[i]);
+
+			if (i + 1 < columns.length)
+				s.append(", ");
 		}
 
+		return s.toString();
+	}
 
-		public String getValue() {
-			return value;
-		}
+
+	private String join(String tableName, String alias, String matchCol, String joinCol) {
+		return "JOIN " + tableName + " AS " + alias + " ON m." + matchCol + " = " + alias + "." + joinCol + " ";
 	}
 }
