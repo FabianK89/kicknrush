@@ -7,6 +7,8 @@ import de.fmk.kicknrush.db.table.UpdateTable;
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.SettingCache;
 import de.fmk.kicknrush.helper.cache.SettingCacheKey;
+import de.fmk.kicknrush.models.pojo.Group;
+import de.fmk.kicknrush.models.pojo.Match;
 import de.fmk.kicknrush.models.pojo.Team;
 import de.fmk.kicknrush.models.pojo.Update;
 import de.fmk.kicknrush.models.pojo.User;
@@ -87,6 +89,28 @@ public class DatabaseHandler {
 		}
 		catch (SQLException sqlex) {
 			LOGGER.error("An error occurred while connecting to the database.", sqlex);
+		}
+	}
+
+
+	public boolean mergeGroup(final Group group) {
+		try (Connection connection = connectionPool.getConnection()) {
+			return groupTable.merge(connection, group);
+		}
+		catch (SQLException sqlex) {
+			LOGGER.error("An error occurred while updating the group '{}'.", group.getGroupName(), sqlex);
+			return false;
+		}
+	}
+
+
+	public boolean mergeMatch(final Match match) {
+		try (Connection connection = connectionPool.getConnection()) {
+			return matchTable.merge(connection, match);
+		}
+		catch (SQLException sqlex) {
+			LOGGER.error("An error occurred while updating the match '{}'.", match.getId(), sqlex);
+			return false;
 		}
 	}
 

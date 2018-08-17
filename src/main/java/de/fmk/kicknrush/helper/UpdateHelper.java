@@ -1,6 +1,8 @@
 package de.fmk.kicknrush.helper;
 
 import de.fmk.kicknrush.db.DatabaseHandler;
+import de.fmk.kicknrush.db.table.GroupTable;
+import de.fmk.kicknrush.db.table.MatchTable;
 import de.fmk.kicknrush.db.table.TeamTable;
 import de.fmk.kicknrush.models.pojo.Update;
 import de.fmk.kicknrush.service.RestService;
@@ -67,7 +69,11 @@ public class UpdateHelper {
 
 
 	private void update(final String tableName) {
-		if (TeamTable.TABLE_NAME.equals(tableName))
+		if (GroupTable.TABLE_NAME.equals(tableName))
+			restService.getGroups().forEach(group -> dbHandler.mergeGroup(group));
+		else if (MatchTable.TABLE_NAME.equals(tableName))
+			restService.getMatches().forEach(match -> dbHandler.mergeMatch(match));
+		else if (TeamTable.TABLE_NAME.equals(tableName))
 			restService.getTeams().forEach(team -> dbHandler.mergeTeam(team));
 	}
 }

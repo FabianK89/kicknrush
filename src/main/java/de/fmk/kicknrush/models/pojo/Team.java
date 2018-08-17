@@ -3,6 +3,7 @@ package de.fmk.kicknrush.models.pojo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import de.fmk.kicknrush.models.dto.TeamDTO;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -27,4 +28,26 @@ public class Team {
 	private String teamIconUrl;
 	private String teamIconUrlSmall;
 	private String teamName;
+
+
+	/**
+	 * Convert the data transfer object to an team object.
+	 * @param dto The data transfer object.
+	 * @return a team object or <code>null</code>.
+	 */
+	public static Team fromDTO(final TeamDTO dto) {
+		final Team team;
+
+		team = new Team();
+
+		if (dto == null)
+			return null;
+
+		team.setTeamId(dto.getTeamId());
+		team.setTeamIconUrl(dto.getTeamIconUrl());
+		team.setTeamIconUrlSmall(dto.getTeamIconUrlSmall());
+		team.setTeamName(dto.getTeamName());
+
+		return team;
+	}
 }

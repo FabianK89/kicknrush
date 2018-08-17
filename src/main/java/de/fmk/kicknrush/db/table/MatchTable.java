@@ -27,6 +27,9 @@ public class MatchTable extends AbstractTable<Integer, Match> {
 	private static final String T1 = "T1";
 	private static final String T2 = "T2";
 
+	public static final String TABLE_NAME = "MATCH";
+
+	/* Column names */
 	static final String GROUP   = "GROUP_ID";
 	static final String GUEST   = "TEAM_GUEST";
 	static final String HOME    = "TEAM_HOME";
@@ -36,7 +39,7 @@ public class MatchTable extends AbstractTable<Integer, Match> {
 
 
 	public MatchTable() {
-		super("MATCH");
+		super(TABLE_NAME);
 
 		addColumn(new Column(ID, TYPE.INTEGER, CONSTRAINT.PRIMARY_KEY));
 		addColumn(new Column(GROUP, TYPE.INTEGER, CONSTRAINT.NOT_NULL));
@@ -94,7 +97,7 @@ public class MatchTable extends AbstractTable<Integer, Match> {
 		matches = new ArrayList<>();
 
 		try (Statement statement = connection.createStatement()) {
-			try (ResultSet rs = statement.executeQuery(selectAllQuery())) {
+			try (ResultSet rs = statement.executeQuery(getSelectAllQuery())) {
 				while (rs.next()) {
 					final Group group;
 					final Match match;
@@ -139,7 +142,8 @@ public class MatchTable extends AbstractTable<Integer, Match> {
 	}
 
 
-	private String selectAllQuery() {
+	@Override
+	String getSelectAllQuery() {
 		return "SELECT m.*,"                                                     +
 		       columns(G, GroupTable.NAME, GroupTable.ORDER_ID, GroupTable.YEAR) +
 		       columns(T1, TeamTable.NAME, TeamTable.ICON, TeamTable.ICON_SMALL) +

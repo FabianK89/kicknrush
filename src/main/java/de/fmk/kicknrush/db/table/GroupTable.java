@@ -5,8 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -16,7 +19,7 @@ import java.util.List;
 public class GroupTable extends AbstractTable<Integer, Group> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(GroupTable.class);
 
-	static final String TABLE_NAME = "GROUPS";
+	public static final String TABLE_NAME = "GROUPS";
 
 	/* Column names */
 	static final String ID       = "GROUP_ID";
@@ -36,7 +39,25 @@ public class GroupTable extends AbstractTable<Integer, Group> {
 
 
 	@Override
-	public boolean merge(Connection connection, Group value) {
+	public boolean merge(Connection connection, Group group) {
+		if (group == null)
+			throw new IllegalArgumentException("The group object must not be null.");
+
+		try (PreparedStatement statement = connection.prepareStatement(getMergeQuery())) {
+			statement.setInt(1, group.getGroupID());
+			statement.setString(2, group.getGroupName());
+			statement.setInt(3, group.getGroupOrderID());
+			statement.setInt(4, group.getYear());
+
+			if (1 == statement.executeUpdate()) {
+				LOGGER.info("The group '{}' has been updated.", group.getGroupName());
+				return true;
+			}
+		}
+		catch (SQLException sqlex) {
+			LOGGER.error("Could not update the group '{}'.", group.getGroupName(), sqlex);
+		}
+
 		return false;
 	}
 
@@ -57,6 +78,20 @@ public class GroupTable extends AbstractTable<Integer, Group> {
 
 	@Override
 	public List<Group> selectAll(Connection connection) {
-		return null;
+		final List<Group> groups;
+
+		groups = new ArrayList<>();
+
+		try (Statement statement = connection.createStatement()) {
+			try (ResultSet rs = statement.executeQuery(getSelectAllQuery())) {
+				while (rs.next())
+					groups.add(new Group(rs.getInt(ID), rs.getInt(ORDER_ID), rs.getInt(YEAR), rs.getString(NAME)));
+			}
+		}
+		catch (SQLException sqlex) {
+			LOGGER.error("An error occurred while reading the groups table.", sqlex);
+		}
+
+		return groups;
 	}
 }

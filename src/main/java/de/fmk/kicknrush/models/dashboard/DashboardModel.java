@@ -1,6 +1,8 @@
 package de.fmk.kicknrush.models.dashboard;
 
 import de.fmk.kicknrush.db.DatabaseHandler;
+import de.fmk.kicknrush.helper.ThreadHelper;
+import de.fmk.kicknrush.helper.UpdateHelper;
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.service.RestService;
 import org.slf4j.Logger;
@@ -20,6 +22,20 @@ public class DashboardModel {
 	private DatabaseHandler dbHandler;
 	@Inject
 	private RestService     restService;
+	@Inject
+	private ThreadHelper    threadHelper;
+	@Inject
+	private UpdateHelper    updateHelper;
+
+
+	public void checkForUpdates() {
+		final Thread updateThread;
+
+		updateThread = new Thread(() -> updateHelper.checkForUpdates());
+
+		threadHelper.addThread(updateThread);
+		updateThread.start();
+	}
 
 
 	public boolean logout() {

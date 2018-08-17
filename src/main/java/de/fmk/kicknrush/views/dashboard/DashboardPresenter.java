@@ -68,6 +68,8 @@ public class DashboardPresenter implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		model.checkForUpdates();
+
 		initStageListener();
 		initTabs();
 	}

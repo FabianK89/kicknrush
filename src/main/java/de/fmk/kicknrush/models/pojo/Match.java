@@ -33,7 +33,7 @@ public class Match {
 	/**
 	 * Convert the data transfer object to an match object.
 	 * @param dto The data transfer object.
-	 * @return a user object or <code>null</code>.
+	 * @return a match object or <code>null</code>.
 	 */
 	public static Match fromDTO(final MatchDTO dto) {
 		final Group group;

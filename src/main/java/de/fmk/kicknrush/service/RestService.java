@@ -2,8 +2,11 @@ package de.fmk.kicknrush.service;
 
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
+import de.fmk.kicknrush.models.dto.GroupDTO;
 import de.fmk.kicknrush.models.dto.MatchDTO;
+import de.fmk.kicknrush.models.dto.TeamDTO;
 import de.fmk.kicknrush.models.dto.UserDTO;
+import de.fmk.kicknrush.models.pojo.Group;
 import de.fmk.kicknrush.models.pojo.Match;
 import de.fmk.kicknrush.models.pojo.Team;
 import de.fmk.kicknrush.models.pojo.Update;
@@ -163,18 +166,6 @@ public class RestService {
 	}
 
 
-	public List<Team> getTeams() {
-		final Team[] teams;
-
-		teams = restTemplate.getForObject(baseUrl.concat("/league/getTeams"), Team[].class);
-
-		if (teams == null)
-			return Collections.emptyList();
-
-		return Arrays.asList(teams);
-	}
-
-
 	public List<Update> getUpdates() {
 		final Update[] updates;
 
@@ -208,6 +199,34 @@ public class RestService {
 	}
 
 
+	public List<Group> getGroups() {
+		final List<Group>                groups;
+		final ResponseEntity<GroupDTO[]> response;
+		final UserDTO                    body;
+
+		body = new UserDTO();
+		body.setSessionID(cacheProvider.getUserCache().getStringValue(UserCacheKey.SESSION));
+		body.setUserID(cacheProvider.getUserCache().getStringValue(UserCacheKey.USER_ID));
+
+		groups = new ArrayList<>();
+
+		try {
+			response = restTemplate.postForEntity(baseUrl.concat("/league/getGroups"), body, GroupDTO[].class);
+
+			if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null)
+				return groups;
+
+			for (final GroupDTO dto : response.getBody())
+				groups.add(Group.fromDTO(dto));
+		}
+		catch (HttpClientErrorException hceex) {
+			return groups;
+		}
+
+		return groups;
+	}
+
+
 	public List<Match> getMatches() {
 		final List<Match>                matches;
 		final ResponseEntity<MatchDTO[]> response;
@@ -233,5 +252,39 @@ public class RestService {
 		}
 
 		return matches;
+	}
+
+
+	public List<Team> getTeams() {
+		final List<Team>                teams;
+		final ResponseEntity<TeamDTO[]> response;
+
+		teams = new ArrayList<>();
+
+		try {
+			response = restTemplate.postForEntity(baseUrl.concat("/league/getTeams"), getBody(), TeamDTO[].class);
+
+			if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null)
+				return teams;
+
+			for (final TeamDTO dto : response.getBody())
+				teams.add(Team.fromDTO(dto));
+		}
+		catch (HttpClientErrorException hceex) {
+			return teams;
+		}
+
+		return teams;
+	}
+
+
+	private UserDTO getBody() {
+		final UserDTO body;
+
+		body = new UserDTO();
+		body.setSessionID(cacheProvider.getUserCache().getStringValue(UserCacheKey.SESSION));
+		body.setUserID(cacheProvider.getUserCache().getStringValue(UserCacheKey.USER_ID));
+
+		return body;
 	}
 }

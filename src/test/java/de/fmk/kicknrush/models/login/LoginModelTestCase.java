@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -91,7 +92,7 @@ public class LoginModelTestCase {
 		final ObjectProperty<Status> statusProperty;
 		final User                   user;
 
-		user = new User("uuid", true, PWD, "salt", ADMIN, "sessionid");
+		user = new User(true, PWD, "salt", ADMIN, UUID.fromString("sessionid"), UUID.fromString("uuid"));
 		valueCapture = ArgumentCaptor.forClass(String.class);
 
 		initializeJavaFX();

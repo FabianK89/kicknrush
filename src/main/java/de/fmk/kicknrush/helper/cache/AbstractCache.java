@@ -240,6 +240,7 @@ public abstract class AbstractCache implements ICache {
 	}
 
 
+	@SuppressWarnings("unchecked")
 	private <R extends T, T, X> T getProperty(final Class<T>  propertyClass,
 	                                          final Class<R>  simplePropertyClass,
 	                                          final Class<X>  typeClass,

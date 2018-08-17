@@ -46,7 +46,6 @@ public class LoginPresenter implements INotificationPresenter, Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		this.resources = new UTF8Resources(resources);
 
-		model.checkForUpdates();
 		model.loadSettings();
 
 		model.statusProperty().addListener((observable, oldStatus, newStatus) -> {
