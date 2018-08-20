@@ -55,9 +55,9 @@ public class UpdateHelper {
 			tableName = serverUpdate.getTableName();
 			keyExists = localUpdates.containsKey(tableName);
 
-			lastServerUpdate = TimeUtils.createTimestamp(serverUpdate.getLastUpdateUTC()).getYMD();
+			lastServerUpdate = TimeUtils.createTimestamp(serverUpdate.getLastUpdateUTC(), true).getYMD();
 			lastLocalUpdate  = keyExists ?
-			                   TimeUtils.createTimestamp(localUpdates.get(tableName).getLastUpdateUTC()).getYMD() :
+			                   TimeUtils.createTimestamp(localUpdates.get(tableName).getLastUpdateUTC(), true).getYMD() :
 			                   Long.MAX_VALUE;
 
 			if (!keyExists || lastServerUpdate > lastLocalUpdate) {

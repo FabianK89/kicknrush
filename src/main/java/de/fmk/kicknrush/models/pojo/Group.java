@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 
 /**
  * @author FabianK
@@ -19,10 +21,12 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public class Group {
-	private int    groupID;
-	private int    groupOrderID;
-	private int    year;
-	private String groupName;
+	private int           groupID;
+	private int           groupOrderID;
+	private int           year;
+	private LocalDateTime firstKickOff;
+	private LocalDateTime lastKickOff;
+	private String        groupName;
 
 
 	/**

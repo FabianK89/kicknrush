@@ -24,7 +24,7 @@
    </columnConstraints>
    <children>
       <Label text="Spiele" GridPane.columnSpan="2147483647" />
-      <ComboBox fx:id="matchCombo" GridPane.rowIndex="1" />
+      <ComboBox fx:id="groupCombo" GridPane.rowIndex="1" />
       <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="2">
          <content>
             <VBox fx:id="matchBox" spacing="10.0" />

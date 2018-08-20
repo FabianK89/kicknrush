@@ -31,7 +31,10 @@ public class DashboardModel {
 	public void checkForUpdates() {
 		final Thread updateThread;
 
-		updateThread = new Thread(() -> updateHelper.checkForUpdates());
+		updateThread = new Thread(() -> {
+			updateHelper.checkForUpdates();
+			threadHelper.removeThread(ThreadHelper.UPDATE_THREAD);
+		}, ThreadHelper.UPDATE_THREAD);
 
 		threadHelper.addThread(updateThread);
 		updateThread.start();

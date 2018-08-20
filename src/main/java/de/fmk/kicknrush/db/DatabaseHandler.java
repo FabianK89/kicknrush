@@ -24,6 +24,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
@@ -126,6 +127,17 @@ public class DatabaseHandler {
 	}
 
 
+	public List<Group> selectAllGroups() {
+		try (Connection connection = connectionPool.getConnection()) {
+			return groupTable.selectAll(connection);
+		}
+		catch (SQLException sqlex) {
+			LOGGER.error("An error occurred while selecting all entries of the group table.", sqlex);
+			return Collections.emptyList();
+		}
+	}
+
+
 	public List<Team> selectAllTeams() {
 		try (Connection connection = connectionPool.getConnection()) {
 			return teamTable.selectAll(connection);
@@ -143,6 +155,25 @@ public class DatabaseHandler {
 		}
 		catch (SQLException sqlex) {
 			LOGGER.error("An error occurred while selecting all entries of the updates table.", sqlex);
+			return Collections.emptyList();
+		}
+	}
+
+
+	public List<Match> selectMatchesForGroup(final Group group) {
+		final List<Match> matches;
+
+		if (group == null)
+			throw new IllegalArgumentException("The group parameter must not be null.");
+
+		try (Connection connection = connectionPool.getConnection()) {
+			matches = matchTable.selectForGroup(connection, group);
+			matches.sort(Comparator.comparing(Match::getKickOff));
+
+			return matches;
+		}
+		catch (SQLException sqlex) {
+			LOGGER.error("An error occurred while selecting matches for the group with id '{}'.", group.getGroupID(), sqlex);
 			return Collections.emptyList();
 		}
 	}

@@ -41,7 +41,7 @@ public class UpdateTable extends AbstractTable<String, Update> {
 
 		try (PreparedStatement statement = connection.prepareStatement(getMergeQuery())) {
 			statement.setString(1, update.getTableName());
-			statement.setObject(2, TimeUtils.createTimestamp(update.getLastUpdateUTC()));
+			statement.setObject(2, TimeUtils.createTimestamp(update.getLastUpdateUTC(), true));
 
 			if (1 == statement.executeUpdate()) {
 				LOGGER.info("Update of table '{}' at {} has been stored.", update.getTableName(), update.getLastUpdateUTC());

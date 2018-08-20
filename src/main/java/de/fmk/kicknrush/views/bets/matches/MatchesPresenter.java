@@ -2,7 +2,7 @@ package de.fmk.kicknrush.views.bets.matches;
 
 import de.fmk.kicknrush.models.bets.matches.MatchesModel;
 import de.fmk.kicknrush.models.bets.matches.match.MatchModel;
-import de.fmk.kicknrush.models.pojo.MatchDay;
+import de.fmk.kicknrush.models.pojo.Group;
 import de.fmk.kicknrush.views.INotificationPresenter;
 import de.fmk.kicknrush.views.Notification;
 import de.fmk.kicknrush.views.bets.matches.match.MatchPresenter;
@@ -24,13 +24,13 @@ import java.util.ResourceBundle;
  */
 public class MatchesPresenter implements INotificationPresenter, Initializable {
 	@FXML
-	private Button             nextButton;
+	private Button          nextButton;
 	@FXML
-	private Button             previousButton;
+	private Button          previousButton;
 	@FXML
-	private ComboBox<MatchDay> matchCombo;
+	private ComboBox<Group> groupCombo;
 	@FXML
-	private VBox               matchBox;
+	private VBox            matchBox;
 
 	@Inject
 	private MatchesModel model;
@@ -40,7 +40,7 @@ public class MatchesPresenter implements INotificationPresenter, Initializable {
 
 	@Override
 	public void enter() {
-		matchCombo.getSelectionModel().selectFirst();
+		groupCombo.getSelectionModel().selectFirst();
 
 		model.startThread();
 	}
@@ -48,23 +48,32 @@ public class MatchesPresenter implements INotificationPresenter, Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		matchCombo.setItems(model.getMatchDays());
-		matchCombo.setCellFactory(listView -> new MatchDayListCell());
-		matchCombo.setButtonCell(new MatchDayListCell());
-		matchCombo.getSelectionModel().selectedItemProperty().addListener(((observable, wasSelected, isSelected) -> {
-			final int selectedIndex = matchCombo.getSelectionModel().getSelectedIndex();
+		groupCombo.setCellFactory(listView -> new GroupListCell());
+		groupCombo.setButtonCell(new GroupListCell());
 
-			nextButton.setDisable(isSelected == null || selectedIndex == matchCombo.getItems().size() - 1);
+		groupCombo.getSelectionModel().selectedItemProperty().addListener(((observable, wasSelected, isSelected) -> {
+			final int selectedIndex = groupCombo.getSelectionModel().getSelectedIndex();
+
+			nextButton.setDisable(isSelected == null || selectedIndex == groupCombo.getItems().size() - 1);
 			previousButton.setDisable(isSelected == null || selectedIndex == 0);
 
 			buildMatches(isSelected);
 		}));
+
+		groupCombo.setItems(model.getGroups());
+		model.setGroupListChangeListener(change -> {
+			if (!change.next())
+				return;
+
+			groupCombo.setValue(model.getActualGroup(groupCombo.getItems()));
+		});
 	}
 
 
-	private void buildMatches(final MatchDay matchDay) {
+	private void buildMatches(final Group group) {
 		matchBox.getChildren().clear();
-		matchDay.getMatches().forEach(match -> {
+
+		model.getMatchesForGroup(group).forEach(match -> {
 			final MatchModel     matchModel;
 			final MatchPresenter presenter;
 			final MatchView      view;
@@ -103,29 +112,29 @@ public class MatchesPresenter implements INotificationPresenter, Initializable {
 
 	@FXML
 	private void onNextMatchDay() {
-		final int index = matchCombo.getSelectionModel().getSelectedIndex();
+		final int index = groupCombo.getSelectionModel().getSelectedIndex();
 
-		matchCombo.getSelectionModel().clearAndSelect(index + 1);
+		groupCombo.getSelectionModel().clearAndSelect(index + 1);
 	}
 
 
 	@FXML
 	private void onPreviousMatchDay() {
-		final int index = matchCombo.getSelectionModel().getSelectedIndex();
+		final int index = groupCombo.getSelectionModel().getSelectedIndex();
 
-		matchCombo.getSelectionModel().clearAndSelect(index - 1);
+		groupCombo.getSelectionModel().clearAndSelect(index - 1);
 	}
 
 
-	private final class MatchDayListCell extends ListCell<MatchDay> {
+	private final class GroupListCell extends ListCell<Group> {
 		@Override
-		protected void updateItem(MatchDay item, boolean empty) {
+		protected void updateItem(Group item, boolean empty) {
 			super.updateItem(item, empty);
 
 			if (item == null || empty)
 				setText(null);
 			else
-				setText(item.getName());
+				setText(item.getGroupName());
 		}
 	}
 }

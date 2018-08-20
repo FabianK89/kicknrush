@@ -14,6 +14,8 @@ import java.util.Map;
 public class ThreadHelper {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ThreadHelper.class);
 
+	public static final String UPDATE_THREAD = "updateThread";
+
 	private final Map<String, Thread> threads;
 
 
@@ -28,7 +30,7 @@ public class ThreadHelper {
 	}
 
 
-	public void addThread(Thread thread) {
+	public void addThread(final Thread thread) {
 		final Thread existingThread;
 
 		existingThread = threads.get(thread.getName());
@@ -38,7 +40,15 @@ public class ThreadHelper {
 	}
 
 
-	public void removeThread(String threadName) {
+	public boolean isThreadRunning(final String threadName) {
+		if (threadName == null || !threads.keySet().contains(threadName))
+			return false;
+
+		return threads.get(threadName).isAlive() && !threads.get(threadName).isInterrupted();
+	}
+
+
+	public void removeThread(final String threadName) {
 		if (threads.remove(threadName) != null)
 			LOGGER.info("Thread '{}' has finished his job.", threadName);
 	}

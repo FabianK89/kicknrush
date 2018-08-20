@@ -14,15 +14,24 @@ import java.util.TimeZone;
  * @author FabianK
  */
 public class TimeUtils {
-	public static TimestampWithTimeZone createTimestamp(final LocalDateTime time) {
-		final short         zoneOffset;
-		final ZonedDateTime zonedDateTime;
-		final ZoneId        zoneId;
+	private static final ZoneId UTC = TimeZone.getTimeZone("UTC").toZoneId();
 
+
+	public static TimestampWithTimeZone createTimestamp(final LocalDateTime time, final boolean utcZone) {
 		if (time == null)
 			throw new IllegalArgumentException("The time parameter must not be null.");
 
-		zoneId        = TimeZone.getTimeZone("UTC").toZoneId();
+		if (utcZone)
+			return createTimestamp(time, UTC);
+		else
+			return createTimestamp(time, ZoneId.systemDefault());
+	}
+
+
+	private static TimestampWithTimeZone createTimestamp(final LocalDateTime time, ZoneId zoneId) {
+		final short         zoneOffset;
+		final ZonedDateTime zonedDateTime;
+
 		zonedDateTime = time.atZone(zoneId);
 		zoneOffset    = 0;
 
@@ -30,22 +39,28 @@ public class TimeUtils {
 	}
 
 
-	public static TimestampWithTimeZone createTimestamp(final String timeString) {
+	public static TimestampWithTimeZone createTimestamp(final String timeString, final boolean utcZone) {
 		final DateTimeFormatter formatter;
 		final ZonedDateTime     zonedDateTime;
+		final ZoneId            zoneId;
 
 		if (timeString == null || timeString.isEmpty())
 			throw new IllegalArgumentException("The time string parameter must not be null or empty.");
 
-		formatter     = DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.systemDefault());
+		if (utcZone)
+			zoneId = UTC;
+		else
+			zoneId = ZoneId.systemDefault();
+
+		formatter     = DateTimeFormatter.ISO_INSTANT.withZone(zoneId);
 		zonedDateTime = ZonedDateTime.parse(timeString, formatter);
 
-		return createTimestamp(zonedDateTime.toLocalDateTime());
+		return createTimestamp(zonedDateTime.toLocalDateTime(), zoneId);
 	}
 
 
 	public static LocalDateTime createLocalDateTime(final String timeString) {
-		return convertTimestamp(createTimestamp(timeString));
+		return convertTimestamp(createTimestamp(timeString, true));
 	}
 
 

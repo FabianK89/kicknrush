@@ -85,7 +85,7 @@ public class GroupTable extends AbstractTable<Integer, Group> {
 		try (Statement statement = connection.createStatement()) {
 			try (ResultSet rs = statement.executeQuery(getSelectAllQuery())) {
 				while (rs.next())
-					groups.add(new Group(rs.getInt(ID), rs.getInt(ORDER_ID), rs.getInt(YEAR), rs.getString(NAME)));
+					groups.add(new Group(rs.getInt(ID), rs.getInt(ORDER_ID), rs.getInt(YEAR), null, null, rs.getString(NAME)));
 			}
 		}
 		catch (SQLException sqlex) {
