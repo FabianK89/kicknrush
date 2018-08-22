@@ -10,6 +10,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import org.controlsfx.control.PopOver;
@@ -56,7 +57,9 @@ public class MatchPresenter implements INotificationPresenter, Initializable {
 			throw new IllegalStateException("The model must be initialized first.");
 
 		kickOffLabel.setText(model.getKickOffTimeString());
+		guestLogo.setImage(new Image(model.getMatch().getGuestTeam().getTeamIconUrlSmall()));
 		guestTeamLabel.setText(model.getMatch().getGuestTeam().getTeamName());
+		homeLogo.setImage(new Image(model.getMatch().getHomeTeam().getTeamIconUrlSmall()));
 		homeTeamLabel.setText(model.getMatch().getHomeTeam().getTeamName());
 		guestBetInput.disableProperty().bind(model.betsClosedProperty());
 		homeBetInput.disableProperty().bind(model.betsClosedProperty());

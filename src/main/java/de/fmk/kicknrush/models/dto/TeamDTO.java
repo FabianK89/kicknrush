@@ -15,7 +15,9 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class TeamDTO {
 	private int    teamId;
-	private String teamIconUrl;
-	private String teamIconUrlSmall;
+	private String teamIcon;
+	private String teamIconType;
+	private String teamIconSmall;
+	private String teamIconSmallType;
 	private String teamName;
 }

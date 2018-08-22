@@ -1,5 +1,6 @@
 package de.fmk.kicknrush.service;
 
+import de.fmk.kicknrush.helper.ImageUtils;
 import de.fmk.kicknrush.helper.cache.CacheProvider;
 import de.fmk.kicknrush.helper.cache.UserCacheKey;
 import de.fmk.kicknrush.models.dto.GroupDTO;
@@ -258,6 +259,7 @@ public class RestService {
 	public List<Team> getTeams() {
 		final List<Team>                teams;
 		final ResponseEntity<TeamDTO[]> response;
+		final String                    homeDir;
 
 		teams = new ArrayList<>();
 
@@ -267,8 +269,25 @@ public class RestService {
 			if (response.getStatusCode() != HttpStatus.OK || response.getBody() == null)
 				return teams;
 
-			for (final TeamDTO dto : response.getBody())
-				teams.add(Team.fromDTO(dto));
+			homeDir = System.getProperty("user.home");
+
+			for (final TeamDTO dto : response.getBody()) {
+				final String name;
+				final Team   team;
+
+				team = Team.fromDTO(dto);
+				name = dto.getTeamName();
+
+				if (team == null)
+					continue;
+
+				ImageUtils.decodeBase64AndWriteToFS(dto.getTeamIcon(), homeDir, name, dto.getTeamIconType(), false)
+				          .ifPresent(team::setTeamIconUrl);
+				ImageUtils.decodeBase64AndWriteToFS(dto.getTeamIconSmall(), homeDir, name, dto.getTeamIconSmallType(), true)
+				          .ifPresent(team::setTeamIconUrlSmall);
+
+				teams.add(team);
+			}
 		}
 		catch (HttpClientErrorException hceex) {
 			return teams;

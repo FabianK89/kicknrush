@@ -44,8 +44,6 @@ public class Team {
 			return null;
 
 		team.setTeamId(dto.getTeamId());
-		team.setTeamIconUrl(dto.getTeamIconUrl());
-		team.setTeamIconUrlSmall(dto.getTeamIconUrlSmall());
 		team.setTeamName(dto.getTeamName());
 
 		return team;
